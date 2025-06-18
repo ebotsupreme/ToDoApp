@@ -1,0 +1,13 @@
+# .NET-specific ignores
+bin/
+obj/
+*.user
+*.suo
+*.log
+*.vs/
+
+# IDE-related ignores
+.vscode/
+
+#ENV
+.env
