@@ -1,11 +1,9 @@
-﻿using System;
-
-class Program
+﻿class Program
 {
     static void Main(string[] args)
     {
-        List<string> tasks = new List<string>();
         bool running = true;
+        TaskManager taskManager = new(); 
 
         while (running)
         {
@@ -18,24 +16,30 @@ class Program
             Console.WriteLine("5. Exit");
             Console.Write("> ");
 
-            string input = Console.ReadLine();
-            HandleMenuSelection(input, tasks, ref running);
+            string input = Console.ReadLine() ?? "";
+            HandleMenuSelection(input, ref running, taskManager);
         }
 
-        static void HandleMenuSelection(string input, List<string> tasks, ref bool running)
+        static void HandleMenuSelection(string input, ref bool running, TaskManager taskManager)
         {
             switch (input)
             {
-                case "1": // view tasks
-                    ViewTasks(tasks);
+                case "1":
+                    // view tasks
+                    ViewTasks(taskManager);
                     break;
-                // case "2": // add tasks
+                case "2":
+                    // add tasks
+                    AddTask(taskManager);
+                    break;
+                // case "3": 
+                // // Mark task as done
                 //     break;
-                // case "3": // Mark task as done
+                // case "4": 
+                // // Delete a task
                 //     break;
-                // case "4": // Delete a task
-                //     break;
-                case "5": // Exit
+                case "5":
+                    // Exit
                     Console.WriteLine();
                     Console.Write("Exiting To-Do App...");
                     running = false;
@@ -46,23 +50,17 @@ class Program
                     break;
             }
         }
-        
-        static void ViewTasks(List<string> tasks)
+
+        static void ViewTasks(TaskManager taskManager)
         {
-            if (tasks.Count > 0)
-            {
-                Console.WriteLine();
-                Console.WriteLine("Your tasks:");
-                for (int i = 0; i < tasks.Count; i++)
-                {
-                    Console.WriteLine($"{i + 1}. {tasks[i]}");
-                }
-            }
-            else
-            {
-                Console.WriteLine();
-                Console.WriteLine("No tasks found.");
-            }
+            taskManager.GetAllTasks();
+        }
+        
+        static void AddTask(TaskManager taskManager)
+        {
+            Console.WriteLine("Enter a new task");
+            string input = Console.ReadLine() ?? "";
+            taskManager.CreateTask(input);
         }
     }
 }
