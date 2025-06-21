@@ -2,8 +2,10 @@
 {
     static void Main(string[] args)
     {
+        const string FILE_PATH = "tasks.txt";
         bool running = true;
         TaskManager taskManager = new();
+        taskManager.LoadFromFile(FILE_PATH);
 
         while (running)
         {

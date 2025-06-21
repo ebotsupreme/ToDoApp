@@ -75,4 +75,23 @@ class TaskManager()
         tasks.RemoveAt(index);
         Console.WriteLine("Task deleted.");
     }
+
+    public void LoadFromFile(string path)
+    {
+        if (!File.Exists(path)) return;
+
+        string[] lines = File.ReadAllLines(path);
+
+        foreach (var line in lines)
+        {
+            string[] parts = line.Split("|");
+
+            if (parts.Length == 2)
+            {
+                bool isDone = parts[0] == "true";
+                string description = parts[1];
+                tasks.Add(new ToDoItem(description) { IsDone = isDone });
+            }
+        }
+    }
 }
