@@ -1,9 +1,11 @@
-﻿class Program
+﻿using ToDoApp.Config;
+
+class Program
 {
     static void Main(string[] args)
     {
         bool running = true;
-        TaskManager taskManager = new();
+        TaskManager taskManager = new(AppConfig.FilePath);
 
         while (running)
         {
