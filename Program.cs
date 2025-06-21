@@ -36,9 +36,10 @@
                     // Mark task as done
                     CompleteTask(taskManager);
                     break;
-                // case "4": 
-                //  // Delete a task
-                //     break;
+                case "4":
+                    // Delete a task
+                    RemoveTask(taskManager);
+                    break;
                 case "5":
                     // Exit
                     Console.WriteLine();
@@ -61,19 +62,36 @@
         {
             Console.WriteLine();
             Console.WriteLine("Enter a new task");
+
             string input = Console.ReadLine() ?? "";
             taskManager.CreateTask(input);
         }
-        
+
         static void CompleteTask(TaskManager taskManager)
         {
             Console.WriteLine();
             Console.WriteLine("Enter the number of the task to mark as done:");
+
             string input = Console.ReadLine() ?? "";
             bool success = int.TryParse(input, out int index);
+
             if (success)
             {
                 taskManager.MarkTaskAsDone(index - 1);
+            }
+        }
+        
+        static void RemoveTask(TaskManager taskManager)
+        {
+            Console.WriteLine();
+            Console.WriteLine("Enter the number of the task to delete:");
+
+            string input = Console.ReadLine() ?? "";
+            bool success = int.TryParse(input, out int index);
+            
+            if (success)
+            {
+                taskManager.DeleteTask(index - 1);
             }
         }
     }
