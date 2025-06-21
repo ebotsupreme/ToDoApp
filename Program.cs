@@ -1,11 +1,12 @@
-﻿class Program
+﻿using ToDoApp.Config;
+
+class Program
 {
     static void Main(string[] args)
     {
-        const string FILE_PATH = "tasks.txt";
         bool running = true;
-        TaskManager taskManager = new(FILE_PATH);
-        
+        TaskManager taskManager = new(AppConfig.FilePath);
+
         while (running)
         {
             Console.WriteLine();
