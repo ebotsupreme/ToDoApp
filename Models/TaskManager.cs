@@ -1,4 +1,4 @@
-class TaskManager
+class TaskManager()
 {
     readonly List<string> tasks = [];
 
