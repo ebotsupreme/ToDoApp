@@ -36,4 +36,22 @@ class TaskManager()
             Console.WriteLine("Cannot add an empty task.");
         }
     }
+
+    public void MarkTaskAsDone(int index)
+    {
+        if (index < 0 || index >= tasks.Count)
+        {
+            Console.Write("Invalid task number.");
+            return;
+        }
+
+        if (tasks[index].IsDone)
+        {
+            Console.Write("That task is already marked as done.");
+            return;
+        }
+    
+        tasks[index].IsDone = true;
+        Console.WriteLine("Task marked as done.");
+    }
 }
