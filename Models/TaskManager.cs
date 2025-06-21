@@ -1,6 +1,6 @@
 class TaskManager()
 {
-    readonly List<string> tasks = [];
+    readonly List<ToDoItem> tasks = [];
 
     public void GetAllTasks()
     {
@@ -10,7 +10,7 @@ class TaskManager()
             Console.WriteLine("Your tasks:");
             for (int i = 0; i < tasks.Count; i++)
             {
-                Console.WriteLine($"{i + 1}. {tasks[i]}");
+                Console.WriteLine($"{i + 1}. {tasks[i].Description}");
             }
         }
         else
@@ -20,11 +20,11 @@ class TaskManager()
         }
     }
 
-    public void CreateTask(string task)
+    public void CreateTask(string description)
     {
-        if (!string.IsNullOrWhiteSpace(task))
+        if (!string.IsNullOrWhiteSpace(description))
         {
-            tasks.Add(task);
+            tasks.Add(new ToDoItem(description));
             Console.WriteLine();
             Console.WriteLine("Task added.");
         }
