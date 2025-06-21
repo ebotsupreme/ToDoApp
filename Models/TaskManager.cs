@@ -1,6 +1,6 @@
-class TaskManager
+class TaskManager()
 {
-    readonly List<string> tasks = [];
+    readonly List<ToDoItem> tasks = [];
 
     public void GetAllTasks()
     {
@@ -10,7 +10,9 @@ class TaskManager
             Console.WriteLine("Your tasks:");
             for (int i = 0; i < tasks.Count; i++)
             {
-                Console.WriteLine($"{i + 1}. {tasks[i]}");
+                var task = tasks[i];
+                string status = task.IsDone ? "[X]" : "[]";
+                Console.WriteLine($"{i + 1}. {status} {task.Description}");
             }
         }
         else
@@ -20,11 +22,11 @@ class TaskManager
         }
     }
 
-    public void CreateTask(string task)
+    public void CreateTask(string description)
     {
-        if (!string.IsNullOrWhiteSpace(task))
+        if (!string.IsNullOrWhiteSpace(description))
         {
-            tasks.Add(task);
+            tasks.Add(new ToDoItem(description));
             Console.WriteLine();
             Console.WriteLine("Task added.");
         }
@@ -33,5 +35,23 @@ class TaskManager
             Console.WriteLine();
             Console.WriteLine("Cannot add an empty task.");
         }
+    }
+
+    public void MarkTaskAsDone(int index)
+    {
+        if (index < 0 || index >= tasks.Count)
+        {
+            Console.Write("Invalid task number.");
+            return;
+        }
+
+        if (tasks[index].IsDone)
+        {
+            Console.Write("That task is already marked as done.");
+            return;
+        }
+    
+        tasks[index].IsDone = true;
+        Console.WriteLine("Task marked as done.");
     }
 }

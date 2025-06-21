@@ -3,7 +3,7 @@
     static void Main(string[] args)
     {
         bool running = true;
-        TaskManager taskManager = new(); 
+        TaskManager taskManager = new();
 
         while (running)
         {
@@ -32,11 +32,12 @@
                     // add tasks
                     AddTask(taskManager);
                     break;
-                // case "3": 
-                // // Mark task as done
-                //     break;
+                case "3":
+                    // Mark task as done
+                    CompleteTask(taskManager);
+                    break;
                 // case "4": 
-                // // Delete a task
+                //  // Delete a task
                 //     break;
                 case "5":
                     // Exit
@@ -55,12 +56,25 @@
         {
             taskManager.GetAllTasks();
         }
-        
+
         static void AddTask(TaskManager taskManager)
         {
+            Console.WriteLine();
             Console.WriteLine("Enter a new task");
             string input = Console.ReadLine() ?? "";
             taskManager.CreateTask(input);
+        }
+        
+        static void CompleteTask(TaskManager taskManager)
+        {
+            Console.WriteLine();
+            Console.WriteLine("Enter the number of the task to mark as done:");
+            string input = Console.ReadLine() ?? "";
+            bool success = int.TryParse(input, out int index);
+            if (success)
+            {
+                taskManager.MarkTaskAsDone(index - 1);
+            }
         }
     }
 }
