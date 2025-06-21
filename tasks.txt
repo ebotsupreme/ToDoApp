@@ -1,0 +1,3 @@
+True|Feed Teddy
+False|Watch TV
+True|Smoke some some

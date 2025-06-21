@@ -20,7 +20,7 @@ class TaskManager
             for (int i = 0; i < tasks.Count; i++)
             {
                 var task = tasks[i];
-                string status = task.IsDone ? "[X]" : "[]";
+                string status = task.IsDone ? "[X]" : "[ ]";
                 Console.WriteLine($"{i + 1}. {status} {task.Description}");
             }
         }
@@ -53,7 +53,7 @@ class TaskManager
         if (index < 0 || index >= tasks.Count)
         {
             Console.WriteLine();
-            Console.Write("Invalid task number.");
+            Console.WriteLine("Invalid task number.");
             return false;
         }
 
@@ -69,7 +69,8 @@ class TaskManager
 
         if (tasks[index].IsDone)
         {
-            Console.Write("That task is already marked as done.");
+            Console.WriteLine();
+            Console.WriteLine("That task is already marked as done.");
             return;
         }
 
@@ -101,7 +102,7 @@ class TaskManager
 
             if (parts.Length == 2)
             {
-                bool isDone = parts[0] == "true";
+                bool isDone = parts[0].Equals("true", StringComparison.OrdinalIgnoreCase);
                 string description = parts[1];
                 tasks.Add(new ToDoItem(description) { IsDone = isDone });
             }
