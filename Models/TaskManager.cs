@@ -37,11 +37,22 @@ class TaskManager()
         }
     }
 
-    public void MarkTaskAsDone(int index)
+    public bool IsIndexValid(int index)
     {
         if (index < 0 || index >= tasks.Count)
         {
+            Console.WriteLine();
             Console.Write("Invalid task number.");
+            return false;
+        }
+
+        return true;
+    }
+
+    public void MarkTaskAsDone(int index)
+    {
+        if (!IsIndexValid(index))
+        {
             return;
         }
 
@@ -50,8 +61,18 @@ class TaskManager()
             Console.Write("That task is already marked as done.");
             return;
         }
-    
+
         tasks[index].IsDone = true;
         Console.WriteLine("Task marked as done.");
+    }
+
+    public void DeleteTask(int index)
+    {
+        if (!IsIndexValid(index))
+        {
+            return;
+        }
+        tasks.RemoveAt(index);
+        Console.WriteLine("Task deleted.");
     }
 }
