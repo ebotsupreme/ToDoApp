@@ -10,7 +10,9 @@ class TaskManager()
             Console.WriteLine("Your tasks:");
             for (int i = 0; i < tasks.Count; i++)
             {
-                Console.WriteLine($"{i + 1}. {tasks[i].Description}");
+                var task = tasks[i];
+                string status = task.IsDone ? "[X]" : "[]";
+                Console.WriteLine($"{i + 1}. {status} {task.Description}");
             }
         }
         else
