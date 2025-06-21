@@ -4,9 +4,8 @@
     {
         const string FILE_PATH = "tasks.txt";
         bool running = true;
-        TaskManager taskManager = new();
-        taskManager.LoadFromFile(FILE_PATH);
-
+        TaskManager taskManager = new(FILE_PATH);
+        
         while (running)
         {
             Console.WriteLine();

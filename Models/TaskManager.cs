@@ -1,13 +1,22 @@
-class TaskManager()
+class TaskManager
 {
     readonly List<ToDoItem> tasks = [];
+    private readonly string filePath;
+
+    public TaskManager(string path)
+    {
+        filePath = path;
+        LoadFromFile(filePath);
+    }
 
     public void GetAllTasks()
     {
+
         if (tasks.Count > 0)
         {
             Console.WriteLine();
             Console.WriteLine("Your tasks:");
+
             for (int i = 0; i < tasks.Count; i++)
             {
                 var task = tasks[i];
@@ -27,8 +36,10 @@ class TaskManager()
         if (!string.IsNullOrWhiteSpace(description))
         {
             tasks.Add(new ToDoItem(description));
+
             Console.WriteLine();
             Console.WriteLine("Task added.");
+            SaveToFile(filePath);
         }
         else
         {
@@ -64,6 +75,7 @@ class TaskManager()
 
         tasks[index].IsDone = true;
         Console.WriteLine("Task marked as done.");
+        SaveToFile(filePath);
     }
 
     public void DeleteTask(int index)
@@ -74,6 +86,7 @@ class TaskManager()
         }
         tasks.RemoveAt(index);
         Console.WriteLine("Task deleted.");
+        SaveToFile(filePath);
     }
 
     public void LoadFromFile(string path)
@@ -93,5 +106,18 @@ class TaskManager()
                 tasks.Add(new ToDoItem(description) { IsDone = isDone });
             }
         }
+    }
+
+    public void SaveToFile(string path)
+    {
+        List<string> lines = [];
+
+        foreach (var task in tasks)
+        {
+            var line = $"{task.IsDone}|{task.Description}";
+            lines.Add(line);
+        }
+
+        File.WriteAllLines(path, lines);
     }
 }
