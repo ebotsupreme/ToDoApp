@@ -1,3 +1,4 @@
-True|Feed Teddy
-False|Watch TV
 True|Smoke some some
+True|Cut beets
+True|wash and dry dishes
+False|drink coffee
