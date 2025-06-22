@@ -15,7 +15,8 @@ class Program
             Console.WriteLine("2. Add a task");
             Console.WriteLine("3. Mark task as done");
             Console.WriteLine("4. Delete a task");
-            Console.WriteLine("5. Exit");
+            Console.WriteLine("5. Edit a task");
+            Console.WriteLine("6. Exit");
             Console.Write("> ");
 
             string input = Console.ReadLine() ?? "";
@@ -43,6 +44,10 @@ class Program
                     RemoveTask(taskManager);
                     break;
                 case "5":
+                    // Edit a task
+                    EditTask(taskManager);
+                    break;
+                case "6":
                     // Exit
                     Console.WriteLine();
                     Console.Write("Exiting To-Do App...");
@@ -77,12 +82,11 @@ class Program
             string input = Console.ReadLine() ?? "";
             bool success = int.TryParse(input, out int index);
 
-            if (success)
-            {
-                taskManager.MarkTaskAsDone(index - 1);
-            }
+            if (!CheckForValidNumber(success)) return;
+            taskManager.MarkTaskAsDone(index - 1);
+            
         }
-        
+
         static void RemoveTask(TaskManager taskManager)
         {
             Console.WriteLine();
@@ -90,11 +94,32 @@ class Program
 
             string input = Console.ReadLine() ?? "";
             bool success = int.TryParse(input, out int index);
-            
-            if (success)
+
+            if (!CheckForValidNumber(success)) return;
+            taskManager.DeleteTask(index - 1);
+        }
+
+        static void EditTask(TaskManager taskManager)
+        {
+            Console.WriteLine();
+            Console.WriteLine("Enter the number of the task you want to edit:");
+
+            string input = Console.ReadLine() ?? "";
+            bool success = int.TryParse(input, out int index);
+
+            if (!CheckForValidNumber(success)) return;
+            taskManager.UpdateTask(index - 1);
+        }
+        
+        static bool CheckForValidNumber(bool success)
+        {
+            if (!success)
             {
-                taskManager.DeleteTask(index - 1);
+                Console.WriteLine("Invalid number.");
+                return false;
             }
+
+            return true;
         }
     }
 }

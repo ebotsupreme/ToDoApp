@@ -11,41 +11,36 @@ class TaskManager
 
     public void GetAllTasks()
     {
-
-        if (tasks.Count > 0)
-        {
-            Console.WriteLine();
-            Console.WriteLine("Your tasks:");
-
-            for (int i = 0; i < tasks.Count; i++)
-            {
-                var task = tasks[i];
-                string status = task.IsDone ? "[X]" : "[ ]";
-                Console.WriteLine($"{i + 1}. {status} {task.Description}");
-            }
-        }
-        else
+        if (tasks.Count == 0)
         {
             Console.WriteLine();
             Console.WriteLine("No tasks found.");
+            return;
+        }
+
+        Console.WriteLine();
+        Console.WriteLine("Your tasks: ");
+
+        for (int i = 0; i < tasks.Count; i++)
+        {
+            var task = tasks[i];
+            string status = task.IsDone ? "[X]" : "[ ]";
+            Console.WriteLine($"{i + 1}. {status} {task.Description}");
         }
     }
 
     public void CreateTask(string description)
     {
-        if (!string.IsNullOrWhiteSpace(description))
+        if (string.IsNullOrWhiteSpace(description))
         {
-            tasks.Add(new ToDoItem(description));
-
-            Console.WriteLine();
-            Console.WriteLine("Task added.");
-            SaveToFile(filePath);
-        }
-        else
-        {
-            Console.WriteLine();
             Console.WriteLine("Cannot add an empty task.");
+            return;
         }
+        
+        tasks.Add(new ToDoItem(description));
+        Console.WriteLine();
+        Console.WriteLine("Task added.");
+        SaveToFile(filePath);
     }
 
     public bool IsIndexValid(int index)
@@ -85,6 +80,7 @@ class TaskManager
         {
             return;
         }
+
         tasks.RemoveAt(index);
         Console.WriteLine("Task deleted.");
         SaveToFile(filePath);
@@ -120,5 +116,29 @@ class TaskManager
         }
 
         File.WriteAllLines(path, lines);
+    }
+
+    public void UpdateTask(int index)
+    {
+        if (!IsIndexValid(index))
+        {
+            return;
+        }
+        
+        Console.WriteLine();
+        Console.WriteLine("Current task description: " + tasks[index].Description);
+        Console.WriteLine("Enter an updated description: ");
+
+        string input = Console.ReadLine() ?? "";
+
+        if (string.IsNullOrEmpty(input))
+        {
+            Console.WriteLine("Cannot add an empty description.");
+            return;
+        }
+
+        tasks[index].Description = input;
+        Console.WriteLine("Task updated.");
+        SaveToFile(filePath);
     }
 }
