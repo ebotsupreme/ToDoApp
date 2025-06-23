@@ -1,6 +1,6 @@
 class TaskManager
 {
-    readonly List<ToDoItem> tasks = [];
+    private readonly List<ToDoItem> tasks = [];
     private readonly string filePath;
 
     public TaskManager(string path)
@@ -11,7 +11,7 @@ class TaskManager
 
     public void GetAllTasks()
     {
-        if (tasks.Count == 0)
+        if (GetAllTasksCount() == 0)
         {
             Console.WriteLine();
             Console.WriteLine("No tasks found.");
@@ -20,48 +20,19 @@ class TaskManager
 
         Console.WriteLine();
         Console.WriteLine("Your tasks: ");
-
-        for (int i = 0; i < tasks.Count; i++)
-        {
-            var task = tasks[i];
-            string status = task.IsDone ? "[X]" : "[ ]";
-            Console.WriteLine($"{i + 1}. {status} {task.Description}");
-        }
+        GetTaskInfo(tasks);
     }
 
     public void CreateTask(string description)
     {
-        if (string.IsNullOrWhiteSpace(description))
-        {
-            Console.WriteLine("Cannot add an empty task.");
-            return;
-        }
-        
         tasks.Add(new ToDoItem(description));
         Console.WriteLine();
         Console.WriteLine("Task added.");
         SaveToFile(filePath);
     }
 
-    public bool IsIndexValid(int index)
-    {
-        if (index < 0 || index >= tasks.Count)
-        {
-            Console.WriteLine();
-            Console.WriteLine("Invalid task number.");
-            return false;
-        }
-
-        return true;
-    }
-
     public void MarkTaskAsDone(int index)
     {
-        if (!IsIndexValid(index))
-        {
-            return;
-        }
-
         if (tasks[index].IsDone)
         {
             Console.WriteLine();
@@ -76,11 +47,6 @@ class TaskManager
 
     public void DeleteTask(int index)
     {
-        if (!IsIndexValid(index))
-        {
-            return;
-        }
-
         tasks.RemoveAt(index);
         Console.WriteLine("Task deleted.");
         SaveToFile(filePath);
@@ -118,27 +84,70 @@ class TaskManager
         File.WriteAllLines(path, lines);
     }
 
-    public void UpdateTask(int index)
+    public void UpdateTask(int index, string input)
     {
-        if (!IsIndexValid(index))
-        {
-            return;
-        }
-        
-        Console.WriteLine();
-        Console.WriteLine("Current task description: " + tasks[index].Description);
-        Console.WriteLine("Enter an updated description: ");
-
-        string input = Console.ReadLine() ?? "";
-
-        if (string.IsNullOrEmpty(input))
-        {
-            Console.WriteLine("Cannot add an empty description.");
-            return;
-        }
-
         tasks[index].Description = input;
         Console.WriteLine("Task updated.");
         SaveToFile(filePath);
+    }
+
+    public void GetIncompleteTasks()
+    {
+        IEnumerable<ToDoItem> query = FilterTasks(false);
+
+        if (!query.Any())
+        {
+            Console.WriteLine();
+            Console.WriteLine("No incomplete tasks found.");
+            return;
+        }
+
+        Console.WriteLine();
+        Console.WriteLine("Your incomplete tasks: ");
+        GetTaskInfo(query);
+    }
+
+    public void GetCompletedTasks()
+    {
+        IEnumerable<ToDoItem> query = FilterTasks(true);
+
+        if (!query.Any())
+        {
+            Console.WriteLine();
+            Console.WriteLine("No completed tasks found.");
+            return;
+        }
+
+        Console.WriteLine();
+        Console.WriteLine("Your completed tasks: ");
+        GetTaskInfo(query);
+    }
+
+    public static void GetTaskInfo(IEnumerable<ToDoItem> tasks)
+    {
+        int i = 0;
+        
+        foreach (var task in tasks)
+        {
+            string status = task.IsDone ? "[X]" : "[ ]";
+            Console.WriteLine($"{++i}. {status} {task.Description}");
+        }
+    }
+
+    public IEnumerable<ToDoItem> FilterTasks(bool isDone)
+    {
+        IEnumerable<ToDoItem> query =
+            tasks.Where((task) => task.IsDone == isDone);
+        return query;
+    }
+
+    public int GetAllTasksCount()
+    {
+        return tasks.Count;
+    }
+
+    public string GetTaskDescription(int index)
+    {
+        return tasks[index].Description;
     }
 }
