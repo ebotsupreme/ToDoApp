@@ -28,26 +28,34 @@ class Program
             switch (input)
             {
                 case "1":
-                    // view tasks
+                    // view all tasks
                     ViewTasks(taskManager);
                     break;
                 case "2":
+                    // view incomplete tasks
+                    ViewTasks(taskManager);
+                    break;
+                case "3":
+                    // view complete tasks
+                    ViewTasks(taskManager);
+                    break;
+                case "4":
                     // add tasks
                     AddTask(taskManager);
                     break;
-                case "3":
+                case "5":
                     // Mark task as done
                     CompleteTask(taskManager);
                     break;
-                case "4":
+                case "6":
                     // Delete a task
                     RemoveTask(taskManager);
                     break;
-                case "5":
+                case "7":
                     // Edit a task
                     EditTask(taskManager);
                     break;
-                case "6":
+                case "8":
                     // Exit
                     Console.WriteLine();
                     Console.Write("Exiting To-Do App...");
