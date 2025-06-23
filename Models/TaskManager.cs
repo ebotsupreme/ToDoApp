@@ -21,12 +21,7 @@ class TaskManager
         Console.WriteLine();
         Console.WriteLine("Your tasks: ");
 
-        for (int i = 0; i < tasks.Count; i++)
-        {
-            var task = tasks[i];
-            string status = task.IsDone ? "[X]" : "[ ]";
-            Console.WriteLine($"{i + 1}. {status} {task.Description}");
-        }
+        GetTaskInfo(tasks);
     }
 
     public void CreateTask(string description)
@@ -144,7 +139,9 @@ class TaskManager
 
     public void GetIncompleteTasks()
     {
-        if (tasks.Count == 0)
+        IEnumerable<ToDoItem> query = FilterTasks(tasks, false);
+
+        if (!query.Any())
         {
             Console.WriteLine();
             Console.WriteLine("No tasks found.");
@@ -154,17 +151,14 @@ class TaskManager
         Console.WriteLine();
         Console.WriteLine("Your incomplete tasks: ");
 
-        for (int i = 0; i < tasks.Count; i++)
-        {
-            var task = tasks[i];
-            string status = task.IsDone ? "[X]" : "[ ]";
-            Console.WriteLine($"{i + 1}. {status} {task.Description}");
-        }
+        GetTaskInfo(query);
     }
-    
-     public void GetCompleteTasks()
+
+    public void GetCompletedTasks()
     {
-        if (tasks.Count == 0)
+        IEnumerable<ToDoItem> query = FilterTasks(tasks, true);
+
+        if (!query.Any())
         {
             Console.WriteLine();
             Console.WriteLine("No tasks found.");
@@ -174,11 +168,23 @@ class TaskManager
         Console.WriteLine();
         Console.WriteLine("Your completed tasks: ");
 
-        for (int i = 0; i < tasks.Count; i++)
+        GetTaskInfo(query);
+    }
+
+    public static void GetTaskInfo(IEnumerable<ToDoItem> tasks)
+    {
+        int i = 0;
+        foreach (var task in tasks)
         {
-            var task = tasks[i];
             string status = task.IsDone ? "[X]" : "[ ]";
-            Console.WriteLine($"{i + 1}. {status} {task.Description}");
+            Console.WriteLine($"{++i}. {status} {task.Description}");
         }
     }
+
+    public static IEnumerable<ToDoItem> FilterTasks(List<ToDoItem> tasks, bool isDone)
+    {
+        IEnumerable<ToDoItem> query =
+            tasks.Where((task) => task.IsDone == isDone);
+        return query;
+    } 
 }

@@ -11,12 +11,14 @@ class Program
         {
             Console.WriteLine();
             Console.WriteLine("What woud you like to do?");
-            Console.WriteLine("1. View tasks");
-            Console.WriteLine("2. Add a task");
-            Console.WriteLine("3. Mark task as done");
-            Console.WriteLine("4. Delete a task");
-            Console.WriteLine("5. Edit a task");
-            Console.WriteLine("6. Exit");
+            Console.WriteLine("1. View all tasks");
+            Console.WriteLine("2. View incomplete tasks");
+            Console.WriteLine("3. View completed tasks");
+            Console.WriteLine("4. Add a task");
+            Console.WriteLine("5. Mark task as done");
+            Console.WriteLine("6. Delete a task");
+            Console.WriteLine("7. Edit a task");
+            Console.WriteLine("8. Exit");
             Console.Write("> ");
 
             string input = Console.ReadLine() ?? "";
@@ -37,7 +39,7 @@ class Program
                     break;
                 case "3":
                     // view complete tasks
-                    ViewCompleteTasks(taskManager);
+                    ViewCompletedTasks(taskManager);
                     break;
                 case "4":
                     // add tasks
@@ -135,9 +137,9 @@ class Program
             taskManager.GetIncompleteTasks();
         }
         
-        static void ViewCompleteTasks(TaskManager taskManager)
+        static void ViewCompletedTasks(TaskManager taskManager)
         {
-            taskManager.GetCompleteTasks();
+            taskManager.GetCompletedTasks();
         }
     }
 }
