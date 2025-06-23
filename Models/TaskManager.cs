@@ -36,7 +36,7 @@ class TaskManager
             Console.WriteLine("Cannot add an empty task.");
             return;
         }
-        
+
         tasks.Add(new ToDoItem(description));
         Console.WriteLine();
         Console.WriteLine("Task added.");
@@ -124,7 +124,7 @@ class TaskManager
         {
             return;
         }
-        
+
         Console.WriteLine();
         Console.WriteLine("Current task description: " + tasks[index].Description);
         Console.WriteLine("Enter an updated description: ");
@@ -140,5 +140,45 @@ class TaskManager
         tasks[index].Description = input;
         Console.WriteLine("Task updated.");
         SaveToFile(filePath);
+    }
+
+    public void GetIncompleteTasks()
+    {
+        if (tasks.Count == 0)
+        {
+            Console.WriteLine();
+            Console.WriteLine("No tasks found.");
+            return;
+        }
+
+        Console.WriteLine();
+        Console.WriteLine("Your incomplete tasks: ");
+
+        for (int i = 0; i < tasks.Count; i++)
+        {
+            var task = tasks[i];
+            string status = task.IsDone ? "[X]" : "[ ]";
+            Console.WriteLine($"{i + 1}. {status} {task.Description}");
+        }
+    }
+    
+     public void GetCompleteTasks()
+    {
+        if (tasks.Count == 0)
+        {
+            Console.WriteLine();
+            Console.WriteLine("No tasks found.");
+            return;
+        }
+
+        Console.WriteLine();
+        Console.WriteLine("Your completed tasks: ");
+
+        for (int i = 0; i < tasks.Count; i++)
+        {
+            var task = tasks[i];
+            string status = task.IsDone ? "[X]" : "[ ]";
+            Console.WriteLine($"{i + 1}. {status} {task.Description}");
+        }
     }
 }

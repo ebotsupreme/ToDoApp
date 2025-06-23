@@ -33,11 +33,11 @@ class Program
                     break;
                 case "2":
                     // view incomplete tasks
-                    ViewTasks(taskManager);
+                    ViewIncompleteTasks(taskManager);
                     break;
                 case "3":
                     // view complete tasks
-                    ViewTasks(taskManager);
+                    ViewCompleteTasks(taskManager);
                     break;
                 case "4":
                     // add tasks
@@ -92,7 +92,7 @@ class Program
 
             if (!CheckForValidNumber(success)) return;
             taskManager.MarkTaskAsDone(index - 1);
-            
+
         }
 
         static void RemoveTask(TaskManager taskManager)
@@ -118,7 +118,7 @@ class Program
             if (!CheckForValidNumber(success)) return;
             taskManager.UpdateTask(index - 1);
         }
-        
+
         static bool CheckForValidNumber(bool success)
         {
             if (!success)
@@ -128,6 +128,16 @@ class Program
             }
 
             return true;
+        }
+
+        static void ViewIncompleteTasks(TaskManager taskManager)
+        {
+            taskManager.GetIncompleteTasks();
+        }
+        
+        static void ViewCompleteTasks(TaskManager taskManager)
+        {
+            taskManager.GetCompleteTasks();
         }
     }
 }
