@@ -1,4 +1,5 @@
 True|Smoke some some
 True|Cut beets
 True|wash and dry dishes
-False|drink coffee
+False|Study stucty today!!
+False|Drink water not coke

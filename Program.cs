@@ -81,7 +81,8 @@ class Program
             Console.WriteLine("Enter a new task");
 
             string input = Console.ReadLine() ?? "";
-            taskManager.CreateTask(input);
+            bool isStringValidated = ValidateStringInput(input, "Cannot add an empty task.");
+            if (isStringValidated) taskManager.CreateTask(input);
         }
 
         static void CompleteTask(TaskManager taskManager)
@@ -89,12 +90,12 @@ class Program
             Console.WriteLine();
             Console.WriteLine("Enter the number of the task to mark as done:");
 
-            string input = Console.ReadLine() ?? "";
-            bool success = int.TryParse(input, out int index);
+            int? index = GetValidIndex(taskManager);
 
-            if (!CheckForValidNumber(success)) return;
-            taskManager.MarkTaskAsDone(index - 1);
-
+            if (index is int i)
+            {
+                taskManager.MarkTaskAsDone(i);
+            }
         }
 
         static void RemoveTask(TaskManager taskManager)
@@ -102,11 +103,12 @@ class Program
             Console.WriteLine();
             Console.WriteLine("Enter the number of the task to delete:");
 
-            string input = Console.ReadLine() ?? "";
-            bool success = int.TryParse(input, out int index);
+            int? index = GetValidIndex(taskManager);
 
-            if (!CheckForValidNumber(success)) return;
-            taskManager.DeleteTask(index - 1);
+            if (index is int i)
+            {
+                taskManager.DeleteTask(i);
+            }
         }
 
         static void EditTask(TaskManager taskManager)
@@ -114,32 +116,66 @@ class Program
             Console.WriteLine();
             Console.WriteLine("Enter the number of the task you want to edit:");
 
-            string input = Console.ReadLine() ?? "";
-            bool success = int.TryParse(input, out int index);
+            int? index = GetValidIndex(taskManager);
 
-            if (!CheckForValidNumber(success)) return;
-            taskManager.UpdateTask(index - 1);
+            if (index is int i)
+            {
+                UpdateTaskDescription(taskManager, i);
+            }
         }
 
-        static bool CheckForValidNumber(bool success)
+        static void UpdateTaskDescription(TaskManager taskManager, int index)
         {
-            if (!success)
-            {
-                Console.WriteLine("Invalid number.");
-                return false;
-            }
+            Console.WriteLine();
+            Console.WriteLine("Current task description: " + taskManager.GetTaskDescription(index));
+            Console.WriteLine("Enter an updated description: ");
 
-            return true;
+            string input = Console.ReadLine() ?? "";
+            bool isStringValidated = ValidateStringInput(input, "Cannot add an empty description.");
+            if (isStringValidated) taskManager.UpdateTask(index, input);
         }
 
         static void ViewIncompleteTasks(TaskManager taskManager)
         {
             taskManager.GetIncompleteTasks();
         }
-        
+
         static void ViewCompletedTasks(TaskManager taskManager)
         {
             taskManager.GetCompletedTasks();
+        }
+
+        static int? GetValidIndex(TaskManager taskManager)
+        {
+            string input = Console.ReadLine() ?? "";
+            bool success = int.TryParse(input, out int index);
+
+            if (!success)
+            {
+                Console.WriteLine();
+                Console.WriteLine("Invalid task number.");
+                return null;
+            }
+
+            index -= 1;
+
+            if (index < 0 || index >= taskManager.GetAllTasksCount())
+            {
+                return null;
+            }
+
+            return index;
+        }
+        
+        static bool ValidateStringInput(string input, string message)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                Console.WriteLine(message);
+                return false;
+            }
+
+            return true;
         }
     }
 }
