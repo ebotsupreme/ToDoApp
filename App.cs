@@ -8,8 +8,8 @@ class App
     static void Main(string[] args)
     {
         bool running = true;
-        TaskManager taskManager = new(AppConfig.FilePath);
-        TaskController taskController = new(taskManager);
+        TaskRepository taskRepository = new(AppConfig.FilePath);
+        TaskController taskController = new(taskRepository);
 
         while (running)
         {

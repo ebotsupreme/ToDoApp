@@ -2,12 +2,12 @@ using ToDoApp.View;
 
 namespace ToDoApp.Model;
 
-public class TaskManager
+public class TaskRepository
 {
     private readonly List<ToDoItem> tasks = [];
     private readonly string filePath;
 
-    public TaskManager(string path)
+    public TaskRepository(string path)
     {
         filePath = path;
         LoadFromFile(filePath);

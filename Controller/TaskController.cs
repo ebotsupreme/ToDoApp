@@ -3,23 +3,23 @@ using ToDoApp.View;
 
 namespace ToDoApp.Controller;
 
-public class TaskController(TaskManager taskManager)
+public class TaskController(TaskRepository taskRepository)
 {
-    private readonly TaskManager taskManager = taskManager;
+    private readonly TaskRepository taskRepository = taskRepository;
 
     public void ViewAllTasks()
     {
-        taskManager.GetAllTasks();
+        taskRepository.GetAllTasks();
     }
 
     public void ViewIncompleteTasks()
     {
-        taskManager.GetIncompleteTasks();
+        taskRepository.GetIncompleteTasks();
     }
 
     public void ViewCompletedTasks()
     {
-        taskManager.GetCompletedTasks();
+        taskRepository.GetCompletedTasks();
     }
 
     public void AddTask()
@@ -29,7 +29,7 @@ public class TaskController(TaskManager taskManager)
         string input = Menu.UserInput();
         bool isStringValidated = Menu.ValidateInput(input, "Cannot add an empty task.");
 
-        if (isStringValidated) taskManager.CreateTask(input);
+        if (isStringValidated) taskRepository.CreateTask(input);
     }
 
     public void CompleteTask()
@@ -37,7 +37,7 @@ public class TaskController(TaskManager taskManager)
         Menu.PrintPrompt("Enter the number of the task to mark as done:");
 
         int index = GetValidIndexWithRetry();
-        bool result = taskManager.MarkTaskAsDone(index);
+        bool result = taskRepository.MarkTaskAsDone(index);
 
         if (result)
         {
@@ -55,7 +55,7 @@ public class TaskController(TaskManager taskManager)
         Menu.PrintPrompt("Enter the number of the task to delete:");
 
         int index = GetValidIndexWithRetry();
-        taskManager.DeleteTask(index);
+        taskRepository.DeleteTask(index);
     }
 
     public void EditTask()
@@ -68,13 +68,13 @@ public class TaskController(TaskManager taskManager)
 
     private void UpdateTaskDescription(int index)
     {
-        string currentTaskDescription = taskManager.GetTaskDescription(index);
+        string currentTaskDescription = taskRepository.GetTaskDescription(index);
         Menu.PrintUpdateTaskDescriptionPrompt(currentTaskDescription);
 
         string input = Menu.UserInput();
         bool isStringValidated = Menu.ValidateInput(input, "Cannot add an empty description.");
 
-        if (isStringValidated) taskManager.UpdateTask(index, input);
+        if (isStringValidated) taskRepository.UpdateTask(index, input);
     }
     
     public int GetValidIndexWithRetry()
@@ -92,9 +92,9 @@ public class TaskController(TaskManager taskManager)
 
             index -= 1;
 
-            if (index < 0 || index >= taskManager.GetAllTasksCount())
+            if (index < 0 || index >= taskRepository.GetAllTasksCount())
             {
-                int maxTasks = taskManager.GetAllTasksCount();
+                int maxTasks = taskRepository.GetAllTasksCount();
                 Menu.ShowOutOfRangeMessage(maxTasks);
                 continue;
             }
