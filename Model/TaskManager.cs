@@ -54,36 +54,53 @@ public class TaskManager
         SaveToFile(filePath);
     }
 
-    public void LoadFromFile(string path)
+    private void LoadFromFile(string path)
     {
-        if (!File.Exists(path)) return;
-
-        string[] lines = File.ReadAllLines(path);
-
-        foreach (var line in lines)
+        try
         {
-            string[] parts = line.Split("|");
+            if (!File.Exists(path)) {
+                Console.WriteLine("No saved tasks found - starting fresh.");
+                return;
+            };
 
-            if (parts.Length == 2)
+            string[] lines = File.ReadAllLines(path);
+
+            foreach (var line in lines)
             {
-                bool isDone = parts[0].Equals("true", StringComparison.OrdinalIgnoreCase);
-                string description = parts[1];
-                tasks.Add(new ToDoItem(description) { IsDone = isDone });
+                string[] parts = line.Split("|");
+
+                if (parts.Length == 2)
+                {
+                    bool isDone = parts[0].Equals("true", StringComparison.OrdinalIgnoreCase);
+                    string description = parts[1];
+                    tasks.Add(new ToDoItem(description) { IsDone = isDone });
+                }
             }
+        }
+        catch (System.Exception ex)
+        {
+            Console.WriteLine("Error loading tasks: " + ex.Message);
         }
     }
 
-    public void SaveToFile(string path)
+    private void SaveToFile(string path)
     {
-        List<string> lines = [];
-
-        foreach (var task in tasks)
+        try
         {
-            var line = $"{task.IsDone}|{task.Description}";
-            lines.Add(line);
-        }
+            List<string> lines = [];
 
-        File.WriteAllLines(path, lines);
+            foreach (var task in tasks)
+            {
+                var line = $"{task.IsDone}|{task.Description}";
+                lines.Add(line);
+            }
+
+            File.WriteAllLines(path, lines);
+        }
+        catch (System.Exception ex)
+        {
+            Console.WriteLine($"Could not save tasks: {ex.GetType().Name} - {ex.Message}");
+        }
     }
 
     public void UpdateTask(int index, string input)

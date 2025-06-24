@@ -1,4 +1,5 @@
-﻿using ToDoApp.Config;
+﻿using System.Net;
+using ToDoApp.Config;
 using ToDoApp.Model;
 using ToDoApp.View;
 
@@ -78,36 +79,24 @@ class Program
         {
             Menu.PrintPrompt("Enter the number of the task to mark as done:");
 
-            int? index = GetValidIndex(taskManager);
-
-            if (index is int i)
-            {
-                taskManager.MarkTaskAsDone(i);
-            }
+            int index = GetValidIndexWithRetry(taskManager);
+            taskManager.MarkTaskAsDone(index);
         }
 
         static void RemoveTask(TaskManager taskManager)
         {
             Menu.PrintPrompt("Enter the number of the task to delete:");
 
-            int? index = GetValidIndex(taskManager);
-
-            if (index is int i)
-            {
-                taskManager.DeleteTask(i);
-            }
+            int index = GetValidIndexWithRetry(taskManager);
+            taskManager.DeleteTask(index);
         }
 
         static void EditTask(TaskManager taskManager)
         {
             Menu.PrintPrompt("Enter the number of the task you want to edit:");
 
-            int? index = GetValidIndex(taskManager);
-
-            if (index is int i)
-            {
-                UpdateTaskDescription(taskManager, i);
-            }
+            int index = GetValidIndexWithRetry(taskManager);
+            UpdateTaskDescription(taskManager, index);
         }
 
         static void UpdateTaskDescription(TaskManager taskManager, int index)
@@ -131,27 +120,30 @@ class Program
             taskManager.GetCompletedTasks();
         }
 
-        static int? GetValidIndex(TaskManager taskManager)
+        static int GetValidIndexWithRetry(TaskManager taskManager)
         {
-            string input = Menu.UserInput();
-            bool success = int.TryParse(input, out int index);
+            while (true)
+            { 
+                string input = Menu.UserInput();
+                bool success = int.TryParse(input, out int index);
 
-            if (!success)
-            {
-                Menu.PrintPrompt("Invalid task number.");
-                return null;
+                if (!success)
+                {
+                    Menu.PrintPrompt("Input is not a number. Please enter a valid task number.");
+                    continue;
+                }
+
+                index -= 1;
+
+                if (index < 0 || index >= taskManager.GetAllTasksCount())
+                {
+                    int maxTasks = taskManager.GetAllTasksCount();
+                    Menu.ShowOutOfRangeMessage(maxTasks);
+                    continue;
+                }
+
+                return index;    
             }
-
-            index -= 1;
-
-            if (index < 0 || index >= taskManager.GetAllTasksCount())
-            {
-                int maxTasks = taskManager.GetAllTasksCount();
-                Menu.ShowOutOfRangeMessage(maxTasks);
-                return null;
-            }
-
-            return index;
         }
     }
 }
