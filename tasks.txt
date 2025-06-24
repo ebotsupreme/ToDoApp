@@ -1,5 +1,5 @@
-True|Smoke some some
-True|Cut beets
+True|beets love
 True|wash and dry dishes
-False|Study stucty today!!
+True|Study stucty today!!
 False|Drink water not coke
+False|Go to doc appt. at 10:30am
