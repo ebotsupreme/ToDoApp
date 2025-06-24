@@ -1,3 +1,5 @@
+using System.Reflection.Metadata;
+
 namespace ToDoApp.View;
 
 public static class Menu
@@ -50,5 +52,21 @@ public static class Menu
         }
 
         return true;
+    }
+
+    public static void LoadingErrorExeptionMessage(string message)
+    {
+        Console.WriteLine($"Error loading tasks: {message}");
+    }
+
+    public static void SavingErrorExeptionMessage(string typeName, string message)
+    {
+        Console.WriteLine($"Could not save tasks: {typeName} - {message}");
+    }
+    
+    public static void PrintInfoForTasks(int index, string status, string description)
+    {
+        Console.WriteLine($"{index}. {status} {description}");
+
     }
 }

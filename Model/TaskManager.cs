@@ -1,3 +1,5 @@
+using ToDoApp.View;
+
 namespace ToDoApp.Model;
 
 public class TaskManager
@@ -15,21 +17,46 @@ public class TaskManager
     {
         if (GetAllTasksCount() == 0)
         {
-            Console.WriteLine();
-            Console.WriteLine("No tasks found.");
+            Menu.PrintPrompt("No tasks found.");
             return;
         }
 
-        Console.WriteLine();
-        Console.WriteLine("Your tasks: ");
-        GetTaskInfo(tasks);
+        Menu.PrintPrompt("Your tasks: ");
+        GetInfoForTasks(tasks);
+    }
+
+    public void GetIncompleteTasks()
+    {
+        IEnumerable<ToDoItem> query = FilterTasks(false);
+
+        if (!query.Any())
+        {
+            Menu.PrintPrompt("No incomplete tasks found.");
+            return;
+        }
+
+        Menu.PrintPrompt("Your incomplete tasks: ");
+        GetInfoForTasks(query);
+    }
+
+    public void GetCompletedTasks()
+    {
+        IEnumerable<ToDoItem> query = FilterTasks(true);
+
+        if (!query.Any())
+        {
+            Menu.PrintPrompt("No completed tasks found.");
+            return;
+        }
+
+        Menu.PrintPrompt("Your completed tasks: ");
+        GetInfoForTasks(query);
     }
 
     public void CreateTask(string description)
     {
         tasks.Add(new ToDoItem(description));
-        Console.WriteLine();
-        Console.WriteLine("Task added.");
+        Menu.PrintPrompt("Task added.");
         SaveToFile(filePath);
     }
 
@@ -48,7 +75,14 @@ public class TaskManager
     public void DeleteTask(int index)
     {
         tasks.RemoveAt(index);
-        Console.WriteLine("Task deleted.");
+        Menu.PrintPrompt("Task deleted.");
+        SaveToFile(filePath);
+    }
+    
+    public void UpdateTask(int index, string input)
+    {
+        tasks[index].Description = input;
+        Menu.PrintPrompt("Task updated.");
         SaveToFile(filePath);
     }
 
@@ -56,10 +90,12 @@ public class TaskManager
     {
         try
         {
-            if (!File.Exists(path)) {
-                Console.WriteLine("No saved tasks found - starting fresh.");
+            if (!File.Exists(path))
+            {
+                Menu.PrintPrompt("No saved tasks found - starting fresh.");
                 return;
-            };
+            }
+            ;
 
             string[] lines = File.ReadAllLines(path);
 
@@ -77,7 +113,7 @@ public class TaskManager
         }
         catch (System.Exception ex)
         {
-            Console.WriteLine("Error loading tasks: " + ex.Message);
+            Menu.LoadingErrorExeptionMessage(ex.Message);
         }
     }
 
@@ -97,57 +133,18 @@ public class TaskManager
         }
         catch (System.Exception ex)
         {
-            Console.WriteLine($"Could not save tasks: {ex.GetType().Name} - {ex.Message}");
+            Menu.SavingErrorExeptionMessage(ex.GetType().Name, ex.Message);
         }
     }
 
-    public void UpdateTask(int index, string input)
-    {
-        tasks[index].Description = input;
-        Console.WriteLine("Task updated.");
-        SaveToFile(filePath);
-    }
-
-    public void GetIncompleteTasks()
-    {
-        IEnumerable<ToDoItem> query = FilterTasks(false);
-
-        if (!query.Any())
-        {
-            Console.WriteLine();
-            Console.WriteLine("No incomplete tasks found.");
-            return;
-        }
-
-        Console.WriteLine();
-        Console.WriteLine("Your incomplete tasks: ");
-        GetTaskInfo(query);
-    }
-
-    public void GetCompletedTasks()
-    {
-        IEnumerable<ToDoItem> query = FilterTasks(true);
-
-        if (!query.Any())
-        {
-            Console.WriteLine();
-            Console.WriteLine("No completed tasks found.");
-            return;
-        }
-
-        Console.WriteLine();
-        Console.WriteLine("Your completed tasks: ");
-        GetTaskInfo(query);
-    }
-
-    private static void GetTaskInfo(IEnumerable<ToDoItem> tasks)
+    private static void GetInfoForTasks(IEnumerable<ToDoItem> tasks)
     {
         int i = 0;
 
         foreach (var task in tasks)
         {
             string status = task.IsDone ? "[X]" : "[ ]";
-            Console.WriteLine($"{++i}. {status} {task.Description}");
+            Menu.PrintInfoForTasks(++i, status, task.Description);
         }
     }
 
