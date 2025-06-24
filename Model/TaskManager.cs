@@ -1,4 +1,6 @@
-class TaskManager
+namespace ToDoApp.Model;
+
+public class TaskManager
 {
     private readonly List<ToDoItem> tasks = [];
     private readonly string filePath;
@@ -123,10 +125,10 @@ class TaskManager
         GetTaskInfo(query);
     }
 
-    public static void GetTaskInfo(IEnumerable<ToDoItem> tasks)
+    private static void GetTaskInfo(IEnumerable<ToDoItem> tasks)
     {
         int i = 0;
-        
+
         foreach (var task in tasks)
         {
             string status = task.IsDone ? "[X]" : "[ ]";
@@ -134,7 +136,7 @@ class TaskManager
         }
     }
 
-    public IEnumerable<ToDoItem> FilterTasks(bool isDone)
+    private IEnumerable<ToDoItem> FilterTasks(bool isDone)
     {
         IEnumerable<ToDoItem> query =
             tasks.Where((task) => task.IsDone == isDone);

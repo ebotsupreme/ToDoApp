@@ -1,4 +1,6 @@
 ﻿using ToDoApp.Config;
+using ToDoApp.Model;
+using ToDoApp.View;
 
 class Program
 {
@@ -9,19 +11,8 @@ class Program
 
         while (running)
         {
-            Console.WriteLine();
-            Console.WriteLine("What woud you like to do?");
-            Console.WriteLine("1. View all tasks");
-            Console.WriteLine("2. View incomplete tasks");
-            Console.WriteLine("3. View completed tasks");
-            Console.WriteLine("4. Add a task");
-            Console.WriteLine("5. Mark task as done");
-            Console.WriteLine("6. Delete a task");
-            Console.WriteLine("7. Edit a task");
-            Console.WriteLine("8. Exit");
-            Console.Write("> ");
-
-            string input = Console.ReadLine() ?? "";
+            Menu.Show();
+            string input = Menu.UserInput();
             HandleMenuSelection(input, ref running, taskManager);
         }
 
@@ -59,13 +50,11 @@ class Program
                     break;
                 case "8":
                     // Exit
-                    Console.WriteLine();
-                    Console.Write("Exiting To-Do App...");
+                    Menu.PrintPrompt("Exiting To-Do App...");
                     running = false;
                     break;
                 default:
-                    Console.WriteLine();
-                    Console.WriteLine("Invalid option. Please try again.");
+                    Menu.PrintPrompt("Invalid option. Please try again.");
                     break;
             }
         }
@@ -77,18 +66,17 @@ class Program
 
         static void AddTask(TaskManager taskManager)
         {
-            Console.WriteLine();
-            Console.WriteLine("Enter a new task");
+            Menu.PrintPrompt("Enter a new task");
 
-            string input = Console.ReadLine() ?? "";
-            bool isStringValidated = ValidateStringInput(input, "Cannot add an empty task.");
+            string input = Menu.UserInput();
+            bool isStringValidated = Menu.ValidateInput(input, "Cannot add an empty task.");
+
             if (isStringValidated) taskManager.CreateTask(input);
         }
 
         static void CompleteTask(TaskManager taskManager)
         {
-            Console.WriteLine();
-            Console.WriteLine("Enter the number of the task to mark as done:");
+            Menu.PrintPrompt("Enter the number of the task to mark as done:");
 
             int? index = GetValidIndex(taskManager);
 
@@ -100,8 +88,7 @@ class Program
 
         static void RemoveTask(TaskManager taskManager)
         {
-            Console.WriteLine();
-            Console.WriteLine("Enter the number of the task to delete:");
+            Menu.PrintPrompt("Enter the number of the task to delete:");
 
             int? index = GetValidIndex(taskManager);
 
@@ -113,8 +100,7 @@ class Program
 
         static void EditTask(TaskManager taskManager)
         {
-            Console.WriteLine();
-            Console.WriteLine("Enter the number of the task you want to edit:");
+            Menu.PrintPrompt("Enter the number of the task you want to edit:");
 
             int? index = GetValidIndex(taskManager);
 
@@ -126,12 +112,12 @@ class Program
 
         static void UpdateTaskDescription(TaskManager taskManager, int index)
         {
-            Console.WriteLine();
-            Console.WriteLine("Current task description: " + taskManager.GetTaskDescription(index));
-            Console.WriteLine("Enter an updated description: ");
+            string currentTaskDescription = taskManager.GetTaskDescription(index);
+            Menu.PrintUpdateTaskDescriptionPrompt(currentTaskDescription);
 
-            string input = Console.ReadLine() ?? "";
-            bool isStringValidated = ValidateStringInput(input, "Cannot add an empty description.");
+            string input = Menu.UserInput();
+            bool isStringValidated = Menu.ValidateInput(input, "Cannot add an empty description.");
+
             if (isStringValidated) taskManager.UpdateTask(index, input);
         }
 
@@ -147,13 +133,12 @@ class Program
 
         static int? GetValidIndex(TaskManager taskManager)
         {
-            string input = Console.ReadLine() ?? "";
+            string input = Menu.UserInput();
             bool success = int.TryParse(input, out int index);
 
             if (!success)
             {
-                Console.WriteLine();
-                Console.WriteLine("Invalid task number.");
+                Menu.PrintPrompt("Invalid task number.");
                 return null;
             }
 
@@ -161,21 +146,12 @@ class Program
 
             if (index < 0 || index >= taskManager.GetAllTasksCount())
             {
+                int maxTasks = taskManager.GetAllTasksCount();
+                Menu.ShowOutOfRangeMessage(maxTasks);
                 return null;
             }
 
             return index;
-        }
-        
-        static bool ValidateStringInput(string input, string message)
-        {
-            if (string.IsNullOrWhiteSpace(input))
-            {
-                Console.WriteLine(message);
-                return false;
-            }
-
-            return true;
         }
     }
 }
