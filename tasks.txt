@@ -1,5 +1,6 @@
-True|beets love
+True|drink shake
 True|wash and dry dishes
 True|Study stucty today!!
-False|Drink water not coke
-False|Go to doc appt. at 10:30am
+True|Drink water not coke
+True|Go to doc appt. at 10:30am
+False|Drink lots of water

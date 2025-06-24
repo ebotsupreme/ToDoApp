@@ -33,18 +33,16 @@ public class TaskManager
         SaveToFile(filePath);
     }
 
-    public void MarkTaskAsDone(int index)
+    public bool MarkTaskAsDone(int index)
     {
         if (tasks[index].IsDone)
         {
-            Console.WriteLine();
-            Console.WriteLine("That task is already marked as done.");
-            return;
+            return false;
         }
 
         tasks[index].IsDone = true;
-        Console.WriteLine("Task marked as done.");
         SaveToFile(filePath);
+        return true;
     }
 
     public void DeleteTask(int index)
