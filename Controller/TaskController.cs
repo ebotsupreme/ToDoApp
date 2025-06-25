@@ -1,11 +1,14 @@
 using ToDoApp.View;
 using ToDoApp.Repository;
+using ToDoApp.Shared.Interfaces;
+using ToDoApp.Utils;
 using ToDoApp.Model;
+
 namespace ToDoApp.Controller;
 
-public class TaskController(TaskRepository taskRepository)
+public class TaskController(ITaskRepository taskRepository)
 {
-    private readonly TaskRepository taskRepository = taskRepository;
+    private readonly ITaskRepository taskRepository = taskRepository;
 
     public void ViewAllTasks()
     {
@@ -18,7 +21,7 @@ public class TaskController(TaskRepository taskRepository)
         }
 
         Menu.PrintPrompt("Your tasks: ");
-        TaskRepository.GetInfoForTasks(allTasks);
+        TaskPrinter.Print(allTasks);
     }
 
     public void ViewIncompleteTasks()
@@ -32,7 +35,7 @@ public class TaskController(TaskRepository taskRepository)
         }
 
         Menu.PrintPrompt("Your incomplete tasks: ");
-        TaskRepository.GetInfoForTasks(incompleteTasks);
+        TaskPrinter.Print(incompleteTasks);
     }
 
     public void ViewCompletedTasks()
@@ -46,7 +49,7 @@ public class TaskController(TaskRepository taskRepository)
         }
 
         Menu.PrintPrompt("Your completed tasks: ");
-        TaskRepository.GetInfoForTasks(completeTasks);
+        TaskPrinter.Print(completeTasks);
     }
 
     public void AddTask()
@@ -76,7 +79,7 @@ public class TaskController(TaskRepository taskRepository)
 
         if (!Success)
         {
-            Menu.PrintPrompt(ErrorMessage ?? "An error occurred while deleting the task.");
+            Menu.PrintPrompt(ErrorMessage ?? "An error occurred while marking the task as done.");
             return;
         }
 
@@ -109,8 +112,14 @@ public class TaskController(TaskRepository taskRepository)
 
     private void UpdateTaskDescription(int index)
     {
-        string currentTaskDescription = taskRepository.GetTaskDescription(index);
-        Menu.PrintUpdateTaskDescriptionPrompt(currentTaskDescription);
+        var task = taskRepository.GetTaskByIndex(index);
+        if (task == null)
+        {
+            Menu.PrintPrompt("Task not found.");
+            return;    
+        }
+
+        Menu.PrintUpdateTaskDescriptionPrompt(task.Description);
 
         string input = Menu.UserInput();
         if (!Menu.ValidateInput(input, "Cannot add an empty description.")) return;

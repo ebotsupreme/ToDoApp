@@ -4,7 +4,7 @@ namespace ToDoApp.Shared.Interfaces;
 
 public interface ITaskRepository
 {
-    List<ToDoItem> GetAllTasks();
+    IReadOnlyList<ToDoItem> GetAllTasks();
     List<ToDoItem> GetIncompleteTasks();
     List<ToDoItem> GetCompletedTasks();
     OperationResult CreateTask(string description);
@@ -12,5 +12,5 @@ public interface ITaskRepository
     OperationResult DeleteTask(int index);
     OperationResult UpdateTask(int index, string newDescription);
     int GetAllTasksCount();
-    string GetTaskDescription(int index);
+    ToDoItem? GetTaskByIndex(int index);
 }

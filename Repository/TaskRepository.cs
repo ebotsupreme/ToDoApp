@@ -17,7 +17,7 @@ public class TaskRepository : ITaskRepository
         LoadFromFile(filePath);
     }
 
-    public List<ToDoItem> GetAllTasks()
+    public IReadOnlyList<ToDoItem> GetAllTasks()
     {
         return tasks;
     }
@@ -38,7 +38,7 @@ public class TaskRepository : ITaskRepository
         {
             tasks.Add(new ToDoItem(description));
             SaveToFile(filePath);
-            return new OperationResult(true);    
+            return new OperationResult(true);
         }
         catch (System.Exception ex)
         {
@@ -103,7 +103,6 @@ public class TaskRepository : ITaskRepository
                 Menu.PrintPrompt("No saved tasks found - starting fresh.");
                 return;
             }
-            ;
 
             string[] lines = File.ReadAllLines(path);
 
@@ -145,24 +144,18 @@ public class TaskRepository : ITaskRepository
         }
     }
 
-    public static void GetInfoForTasks(IEnumerable<ToDoItem> tasks)
-    {
-        int i = 0;
-
-        foreach (var task in tasks)
-        {
-            string status = task.IsDone ? "[X]" : "[ ]";
-            Menu.PrintInfoForTasks(++i, status, task.Description);
-        }
-    }
-
     public int GetAllTasksCount()
     {
         return tasks.Count;
     }
 
-    public string GetTaskDescription(int index)
+    public ToDoItem? GetTaskByIndex(int index)
     {
-        return tasks[index].Description;
+        if (index < 0 || index >= tasks.Count)
+        {
+            return null;
+        }
+
+        return tasks[index];
     }
 }
