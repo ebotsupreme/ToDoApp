@@ -1,25 +1,55 @@
-using ToDoApp.Model;
 using ToDoApp.View;
+using ToDoApp.Repository;
+using ToDoApp.Shared.Interfaces;
+using ToDoApp.Utils;
+using ToDoApp.Model;
 
 namespace ToDoApp.Controller;
 
-public class TaskController(TaskRepository taskRepository)
+public class TaskController(ITaskRepository taskRepository)
 {
-    private readonly TaskRepository taskRepository = taskRepository;
+    private readonly ITaskRepository taskRepository = taskRepository;
 
     public void ViewAllTasks()
     {
-        taskRepository.GetAllTasks();
+        var allTasks = taskRepository.GetAllTasks();
+
+        if (allTasks.Count == 0)
+        {
+            Menu.PrintPrompt("No tasks found.");
+            return;
+        }
+
+        Menu.PrintPrompt("Your tasks: ");
+        TaskPrinter.Print(allTasks);
     }
 
     public void ViewIncompleteTasks()
     {
-        taskRepository.GetIncompleteTasks();
+        var incompleteTasks  = taskRepository.GetIncompleteTasks();
+
+        if (incompleteTasks.Count == 0)
+        {
+            Menu.PrintPrompt("No incomplete tasks found.");
+            return;
+        }
+
+        Menu.PrintPrompt("Your incomplete tasks: ");
+        TaskPrinter.Print(incompleteTasks);
     }
 
     public void ViewCompletedTasks()
     {
-        taskRepository.GetCompletedTasks();
+        var completeTasks = taskRepository.GetCompletedTasks();
+
+        if (completeTasks.Count == 0)
+        {
+            Menu.PrintPrompt("No completed tasks found.");
+            return;
+        }
+
+        Menu.PrintPrompt("Your completed tasks: ");
+        TaskPrinter.Print(completeTasks);
     }
 
     public void AddTask()
@@ -27,9 +57,17 @@ public class TaskController(TaskRepository taskRepository)
         Menu.PrintPrompt("Enter a new task");
 
         string input = Menu.UserInput();
-        bool isStringValidated = Menu.ValidateInput(input, "Cannot add an empty task.");
+        if (!Menu.ValidateInput(input, "Cannot add an empty task.")) return;
 
-        if (isStringValidated) taskRepository.CreateTask(input);
+        var (Success, ErrorMessage) = taskRepository.CreateTask(input);
+
+        if (!Success)
+        {
+            Menu.PrintPrompt(ErrorMessage ?? "An error occurred while adding the task.");
+            return;
+        }
+
+        Menu.PrintPrompt("Task added.");        
     }
 
     public void CompleteTask()
@@ -37,25 +75,31 @@ public class TaskController(TaskRepository taskRepository)
         Menu.PrintPrompt("Enter the number of the task to mark as done:");
 
         int index = GetValidIndexWithRetry();
-        bool result = taskRepository.MarkTaskAsDone(index);
+        var (Success, ErrorMessage) = taskRepository.MarkTaskAsDone(index);
 
-        if (result)
+        if (!Success)
         {
-            Console.WriteLine();
-            Console.WriteLine("Task is now marked as done.");
+            Menu.PrintPrompt(ErrorMessage ?? "An error occurred while marking the task as done.");
+            return;
         }
-        else
-        {
-            Console.WriteLine("That task is already marked as done.");
-        }
+
+        Menu.PrintPrompt("Task is now marked as done.");
     }
-    
+
     public void RemoveTask()
     {
         Menu.PrintPrompt("Enter the number of the task to delete:");
 
         int index = GetValidIndexWithRetry();
-        taskRepository.DeleteTask(index);
+        var (Success, ErrorMessage) = taskRepository.DeleteTask(index);
+
+        if (!Success)
+        {
+            Menu.PrintPrompt(ErrorMessage ?? "An error occurred while deleting the task.");
+            return;
+        }
+        
+        Menu.PrintPrompt("Task deleted.");
     }
 
     public void EditTask()
@@ -68,13 +112,27 @@ public class TaskController(TaskRepository taskRepository)
 
     private void UpdateTaskDescription(int index)
     {
-        string currentTaskDescription = taskRepository.GetTaskDescription(index);
-        Menu.PrintUpdateTaskDescriptionPrompt(currentTaskDescription);
+        var task = taskRepository.GetTaskByIndex(index);
+        if (task == null)
+        {
+            Menu.PrintPrompt("Task not found.");
+            return;    
+        }
+
+        Menu.PrintUpdateTaskDescriptionPrompt(task.Description);
 
         string input = Menu.UserInput();
-        bool isStringValidated = Menu.ValidateInput(input, "Cannot add an empty description.");
+        if (!Menu.ValidateInput(input, "Cannot add an empty description.")) return;
 
-        if (isStringValidated) taskRepository.UpdateTask(index, input);
+        var (Success, ErrorMessage) = taskRepository.UpdateTask(index, input);
+
+        if (!Success)
+        {
+            Menu.PrintPrompt(ErrorMessage ?? "An error occurred while updating the task.");
+            return;
+        }
+
+        Menu.PrintPrompt("Task updated.");
     }
     
     public int GetValidIndexWithRetry()

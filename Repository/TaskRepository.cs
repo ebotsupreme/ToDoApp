@@ -1,8 +1,12 @@
+using ToDoApp.Model;
 using ToDoApp.View;
+using ToDoApp.Utils;
+using ToDoApp.Shared.Interfaces;
+using ToDoApp.Shared;
 
-namespace ToDoApp.Model;
+namespace ToDoApp.Repository;
 
-public class TaskRepository
+public class TaskRepository : ITaskRepository
 {
     private readonly List<ToDoItem> tasks = [];
     private readonly string filePath;
@@ -13,77 +17,81 @@ public class TaskRepository
         LoadFromFile(filePath);
     }
 
-    public void GetAllTasks()
+    public IReadOnlyList<ToDoItem> GetAllTasks()
     {
-        if (GetAllTasksCount() == 0)
+        return tasks;
+    }
+
+    public List<ToDoItem> GetIncompleteTasks()
+    {
+        return [.. TaskFilter.FilterTasks(tasks, false)];
+    }
+
+    public List<ToDoItem> GetCompletedTasks()
+    {
+        return [.. TaskFilter.FilterTasks(tasks, true)];
+    }
+
+    public OperationResult CreateTask(string description)
+    {
+        try
         {
-            Menu.PrintPrompt("No tasks found.");
-            return;
+            tasks.Add(new ToDoItem(description));
+            SaveToFile(filePath);
+            return new OperationResult(true);
+        }
+        catch (System.Exception ex)
+        {
+            return new OperationResult(false, $"Error adding task: {ex.Message}");
+        }
+    }
+
+    public OperationResult MarkTaskAsDone(int index)
+    {
+        try
+        {
+            if (tasks[index].IsDone)
+            {
+                return new OperationResult(false, "That task is already marked as done.");
+            }
+
+            tasks[index].IsDone = true;
+            SaveToFile(filePath);
+            return new OperationResult(true);
+        }
+        catch (System.Exception ex)
+        {
+            return new OperationResult(false, $"Error completing task: {ex.Message}");
         }
 
-        Menu.PrintPrompt("Your tasks: ");
-        GetInfoForTasks(tasks);
     }
 
-    public void GetIncompleteTasks()
+    public OperationResult DeleteTask(int index)
     {
-        IEnumerable<ToDoItem> query = FilterTasks(false);
-
-        if (!query.Any())
+        try
         {
-            Menu.PrintPrompt("No incomplete tasks found.");
-            return;
+            tasks.RemoveAt(index);
+            SaveToFile(filePath);
+            return new OperationResult(true);
         }
-
-        Menu.PrintPrompt("Your incomplete tasks: ");
-        GetInfoForTasks(query);
-    }
-
-    public void GetCompletedTasks()
-    {
-        IEnumerable<ToDoItem> query = FilterTasks(true);
-
-        if (!query.Any())
+        catch (System.Exception ex)
         {
-            Menu.PrintPrompt("No completed tasks found.");
-            return;
+            return new OperationResult(false, $"Error deleting task: {ex.Message}");
         }
-
-        Menu.PrintPrompt("Your completed tasks: ");
-        GetInfoForTasks(query);
     }
 
-    public void CreateTask(string description)
+    public OperationResult UpdateTask(int index, string input)
     {
-        tasks.Add(new ToDoItem(description));
-        Menu.PrintPrompt("Task added.");
-        SaveToFile(filePath);
-    }
-
-    public bool MarkTaskAsDone(int index)
-    {
-        if (tasks[index].IsDone)
+        try
         {
-            return false;
+            tasks[index].Description = input;
+            SaveToFile(filePath);
+            return new OperationResult(true);
         }
-
-        tasks[index].IsDone = true;
-        SaveToFile(filePath);
-        return true;
-    }
-
-    public void DeleteTask(int index)
-    {
-        tasks.RemoveAt(index);
-        Menu.PrintPrompt("Task deleted.");
-        SaveToFile(filePath);
-    }
-    
-    public void UpdateTask(int index, string input)
-    {
-        tasks[index].Description = input;
-        Menu.PrintPrompt("Task updated.");
-        SaveToFile(filePath);
+        catch (System.Exception ex)
+        {
+            return new OperationResult(false, $"Error updating task: {ex.Message}");
+        }
     }
 
     private void LoadFromFile(string path)
@@ -95,7 +103,6 @@ public class TaskRepository
                 Menu.PrintPrompt("No saved tasks found - starting fresh.");
                 return;
             }
-            ;
 
             string[] lines = File.ReadAllLines(path);
 
@@ -137,31 +144,18 @@ public class TaskRepository
         }
     }
 
-    private static void GetInfoForTasks(IEnumerable<ToDoItem> tasks)
-    {
-        int i = 0;
-
-        foreach (var task in tasks)
-        {
-            string status = task.IsDone ? "[X]" : "[ ]";
-            Menu.PrintInfoForTasks(++i, status, task.Description);
-        }
-    }
-
-    private IEnumerable<ToDoItem> FilterTasks(bool isDone)
-    {
-        IEnumerable<ToDoItem> query =
-            tasks.Where((task) => task.IsDone == isDone);
-        return query;
-    }
-
     public int GetAllTasksCount()
     {
         return tasks.Count;
     }
 
-    public string GetTaskDescription(int index)
+    public ToDoItem? GetTaskByIndex(int index)
     {
-        return tasks[index].Description;
+        if (index < 0 || index >= tasks.Count)
+        {
+            return null;
+        }
+
+        return tasks[index];
     }
 }
