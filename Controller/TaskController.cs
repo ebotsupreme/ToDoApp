@@ -54,9 +54,18 @@ public class TaskController(TaskRepository taskRepository)
         Menu.PrintPrompt("Enter a new task");
 
         string input = Menu.UserInput();
-        bool isStringValidated = Menu.ValidateInput(input, "Cannot add an empty task.");
+        if (!Menu.ValidateInput(input, "Cannot add an empty task.")) return;
 
-        if (isStringValidated) taskRepository.CreateTask(input);
+        var (Success, ErrorMessage) = taskRepository.CreateTask(input);
+
+        if (!Success)
+        {
+            Menu.PrintPrompt("Task added.");
+            return;
+        }
+        
+        Menu.PrintPrompt(ErrorMessage ?? "An error occurred while adding the task.");
+        
     }
 
     public void CompleteTask()

@@ -1,6 +1,8 @@
 using ToDoApp.Model;
 using ToDoApp.View;
 using ToDoApp.Utils;
+using ToDoApp.Shared.Interfaces;
+using ToDoApp.Shared;
 
 namespace ToDoApp.Repository;
 
@@ -30,11 +32,18 @@ public class TaskRepository : ITaskRepository
         return [.. TaskFilter.FilterTasks(tasks, true)];
     }
 
-    public void CreateTask(string description)
+    public OperationResult CreateTask(string description)
     {
-        tasks.Add(new ToDoItem(description));
-        Menu.PrintPrompt("Task added.");
-        SaveToFile(filePath);
+        try
+        {
+            tasks.Add(new ToDoItem(description));
+            SaveToFile(filePath);
+            return new OperationResult(true);    
+        }
+        catch (System.Exception ex)
+        {
+            return new OperationResult(false, $"Error adding task: {ex.Message}");
+        }
     }
 
     public bool MarkTaskAsDone(int index)
