@@ -10,7 +10,7 @@ public interface ITaskRepository
     OperationResult CreateTask(string description);
     OperationResult MarkTaskAsDone(int index);
     OperationResult DeleteTask(int index);
-    OperationResult UpdateTask(int index, string newDescription);
+    OperationResult UpdateTask(ToDoItem task, string newDescription);
     int GetAllTasksCount();
     ToDoItem? GetTaskByIndex(int index);
 }

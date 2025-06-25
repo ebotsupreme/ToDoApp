@@ -80,11 +80,11 @@ public class TaskRepository : ITaskRepository
         }
     }
 
-    public OperationResult UpdateTask(int index, string input)
+    public OperationResult UpdateTask(ToDoItem task, string input)
     {
         try
         {
-            tasks[index].Description = input;
+            task.Description = input;
             SaveToFile(filePath);
             return new OperationResult(true);
         }

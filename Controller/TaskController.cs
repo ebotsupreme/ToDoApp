@@ -1,14 +1,13 @@
 using ToDoApp.View;
-using ToDoApp.Repository;
 using ToDoApp.Shared.Interfaces;
 using ToDoApp.Utils;
-using ToDoApp.Model;
 
 namespace ToDoApp.Controller;
 
-public class TaskController(ITaskRepository taskRepository)
+public class TaskController(ITaskRepository taskRepository, ITaskService taskService)
 {
     private readonly ITaskRepository taskRepository = taskRepository;
+    private readonly ITaskService _taskService = taskService;
 
     public void ViewAllTasks()
     {
@@ -57,9 +56,13 @@ public class TaskController(ITaskRepository taskRepository)
         Menu.PrintPrompt("Enter a new task");
 
         string input = Menu.UserInput();
-        if (!Menu.ValidateInput(input, "Cannot add an empty task.")) return;
+        if (!InputValidator.IsInputValid(input))
+        {
+            Menu.PrintPrompt("Cannot add an empty task.");
+            return;
+        }
 
-        var (Success, ErrorMessage) = taskRepository.CreateTask(input);
+        var (Success, ErrorMessage) = _taskService.AddNewTask(input);
 
         if (!Success)
         {
@@ -122,9 +125,13 @@ public class TaskController(ITaskRepository taskRepository)
         Menu.PrintUpdateTaskDescriptionPrompt(task.Description);
 
         string input = Menu.UserInput();
-        if (!Menu.ValidateInput(input, "Cannot add an empty description.")) return;
+        if (!InputValidator.IsInputValid(input))
+        {
+            Menu.PrintPrompt("Cannot add an empty description.");
+            return;
+        }
 
-        var (Success, ErrorMessage) = taskRepository.UpdateTask(index, input);
+        var (Success, ErrorMessage) = _taskService.UpdateExistingTask(task, input);
 
         if (!Success)
         {
