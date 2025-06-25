@@ -1,7 +1,7 @@
 ﻿using ToDoApp.Config;
 using ToDoApp.Controller;
-using ToDoApp.Model;
 using ToDoApp.View;
+using ToDoApp.Repository;
 
 class App
 {

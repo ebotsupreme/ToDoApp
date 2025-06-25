@@ -1,8 +1,10 @@
+using ToDoApp.Model;
 using ToDoApp.View;
+using ToDoApp.Utils;
 
-namespace ToDoApp.Model;
+namespace ToDoApp.Repository;
 
-public class TaskRepository
+public class TaskRepository : ITaskRepository
 {
     private readonly List<ToDoItem> tasks = [];
     private readonly string filePath;
@@ -13,44 +15,19 @@ public class TaskRepository
         LoadFromFile(filePath);
     }
 
-    public void GetAllTasks()
+    public List<ToDoItem> GetAllTasks()
     {
-        if (GetAllTasksCount() == 0)
-        {
-            Menu.PrintPrompt("No tasks found.");
-            return;
-        }
-
-        Menu.PrintPrompt("Your tasks: ");
-        GetInfoForTasks(tasks);
+        return tasks;
     }
 
-    public void GetIncompleteTasks()
+    public List<ToDoItem> GetIncompleteTasks()
     {
-        IEnumerable<ToDoItem> query = FilterTasks(false);
-
-        if (!query.Any())
-        {
-            Menu.PrintPrompt("No incomplete tasks found.");
-            return;
-        }
-
-        Menu.PrintPrompt("Your incomplete tasks: ");
-        GetInfoForTasks(query);
+        return [.. TaskFilter.FilterTasks(tasks, false)];
     }
 
-    public void GetCompletedTasks()
+    public List<ToDoItem> GetCompletedTasks()
     {
-        IEnumerable<ToDoItem> query = FilterTasks(true);
-
-        if (!query.Any())
-        {
-            Menu.PrintPrompt("No completed tasks found.");
-            return;
-        }
-
-        Menu.PrintPrompt("Your completed tasks: ");
-        GetInfoForTasks(query);
+        return [.. TaskFilter.FilterTasks(tasks, true)];
     }
 
     public void CreateTask(string description)
@@ -78,7 +55,7 @@ public class TaskRepository
         Menu.PrintPrompt("Task deleted.");
         SaveToFile(filePath);
     }
-    
+
     public void UpdateTask(int index, string input)
     {
         tasks[index].Description = input;
@@ -137,7 +114,7 @@ public class TaskRepository
         }
     }
 
-    private static void GetInfoForTasks(IEnumerable<ToDoItem> tasks)
+    public static void GetInfoForTasks(IEnumerable<ToDoItem> tasks)
     {
         int i = 0;
 
@@ -146,13 +123,6 @@ public class TaskRepository
             string status = task.IsDone ? "[X]" : "[ ]";
             Menu.PrintInfoForTasks(++i, status, task.Description);
         }
-    }
-
-    private IEnumerable<ToDoItem> FilterTasks(bool isDone)
-    {
-        IEnumerable<ToDoItem> query =
-            tasks.Where((task) => task.IsDone == isDone);
-        return query;
     }
 
     public int GetAllTasksCount()

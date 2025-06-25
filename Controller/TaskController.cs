@@ -1,6 +1,6 @@
-using ToDoApp.Model;
 using ToDoApp.View;
-
+using ToDoApp.Repository;
+using ToDoApp.Model;
 namespace ToDoApp.Controller;
 
 public class TaskController(TaskRepository taskRepository)
@@ -9,17 +9,44 @@ public class TaskController(TaskRepository taskRepository)
 
     public void ViewAllTasks()
     {
-        taskRepository.GetAllTasks();
+        var allTasks = taskRepository.GetAllTasks();
+
+        if (allTasks.Count == 0)
+        {
+            Menu.PrintPrompt("No tasks found.");
+            return;
+        }
+
+        Menu.PrintPrompt("Your tasks: ");
+        TaskRepository.GetInfoForTasks(allTasks);
     }
 
     public void ViewIncompleteTasks()
     {
-        taskRepository.GetIncompleteTasks();
+        var incompleteTasks  = taskRepository.GetIncompleteTasks();
+
+        if (incompleteTasks.Count == 0)
+        {
+            Menu.PrintPrompt("No incomplete tasks found.");
+            return;
+        }
+
+        Menu.PrintPrompt("Your incomplete tasks: ");
+        TaskRepository.GetInfoForTasks(incompleteTasks);
     }
 
     public void ViewCompletedTasks()
     {
-        taskRepository.GetCompletedTasks();
+        var completeTasks = taskRepository.GetCompletedTasks();
+
+        if (completeTasks.Count == 0)
+        {
+            Menu.PrintPrompt("No completed tasks found.");
+            return;
+        }
+
+        Menu.PrintPrompt("Your completed tasks: ");
+        TaskRepository.GetInfoForTasks(completeTasks);
     }
 
     public void AddTask()
