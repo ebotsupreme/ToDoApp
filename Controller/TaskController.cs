@@ -60,12 +60,11 @@ public class TaskController(TaskRepository taskRepository)
 
         if (!Success)
         {
-            Menu.PrintPrompt("Task added.");
+            Menu.PrintPrompt(ErrorMessage ?? "An error occurred while adding the task.");
             return;
         }
-        
-        Menu.PrintPrompt(ErrorMessage ?? "An error occurred while adding the task.");
-        
+
+        Menu.PrintPrompt("Task added.");        
     }
 
     public void CompleteTask()
@@ -75,23 +74,27 @@ public class TaskController(TaskRepository taskRepository)
         int index = GetValidIndexWithRetry();
         bool result = taskRepository.MarkTaskAsDone(index);
 
-        if (result)
-        {
-            Console.WriteLine();
-            Console.WriteLine("Task is now marked as done.");
-        }
-        else
+        if (!result)
         {
             Console.WriteLine("That task is already marked as done.");
         }
+
+        Menu.PrintPrompt("Task is now marked as done.");
     }
-    
+
     public void RemoveTask()
     {
         Menu.PrintPrompt("Enter the number of the task to delete:");
 
         int index = GetValidIndexWithRetry();
-        taskRepository.DeleteTask(index);
+        var (Success, ErrorMessage) = taskRepository.DeleteTask(index);
+
+        if (!Success)
+        {
+            Menu.PrintPrompt(ErrorMessage ?? "An error occurred while deleting the task.");
+        }
+        
+        Menu.PrintPrompt("Task deleted.");
     }
 
     public void EditTask()

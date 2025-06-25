@@ -58,11 +58,18 @@ public class TaskRepository : ITaskRepository
         return true;
     }
 
-    public void DeleteTask(int index)
+    public OperationResult DeleteTask(int index)
     {
-        tasks.RemoveAt(index);
-        Menu.PrintPrompt("Task deleted.");
-        SaveToFile(filePath);
+        try
+        {
+            tasks.RemoveAt(index);
+            SaveToFile(filePath);
+            return new OperationResult(true);
+        }
+        catch (System.Exception ex)
+        {
+            return new OperationResult(false, $"Error deleting task: {ex.Message}");
+        }
     }
 
     public void UpdateTask(int index, string input)
