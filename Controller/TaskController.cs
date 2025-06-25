@@ -72,11 +72,12 @@ public class TaskController(TaskRepository taskRepository)
         Menu.PrintPrompt("Enter the number of the task to mark as done:");
 
         int index = GetValidIndexWithRetry();
-        bool result = taskRepository.MarkTaskAsDone(index);
+        var (Success, ErrorMessage) = taskRepository.MarkTaskAsDone(index);
 
-        if (!result)
+        if (!Success)
         {
-            Console.WriteLine("That task is already marked as done.");
+            Menu.PrintPrompt(ErrorMessage ?? "An error occurred while deleting the task.");
+            return;
         }
 
         Menu.PrintPrompt("Task is now marked as done.");
@@ -92,6 +93,7 @@ public class TaskController(TaskRepository taskRepository)
         if (!Success)
         {
             Menu.PrintPrompt(ErrorMessage ?? "An error occurred while deleting the task.");
+            return;
         }
         
         Menu.PrintPrompt("Task deleted.");
@@ -111,9 +113,17 @@ public class TaskController(TaskRepository taskRepository)
         Menu.PrintUpdateTaskDescriptionPrompt(currentTaskDescription);
 
         string input = Menu.UserInput();
-        bool isStringValidated = Menu.ValidateInput(input, "Cannot add an empty description.");
+        if (!Menu.ValidateInput(input, "Cannot add an empty description.")) return;
 
-        if (isStringValidated) taskRepository.UpdateTask(index, input);
+        var (Success, ErrorMessage) = taskRepository.UpdateTask(index, input);
+
+        if (!Success)
+        {
+            Menu.PrintPrompt(ErrorMessage ?? "An error occurred while updating the task.");
+            return;
+        }
+
+        Menu.PrintPrompt("Task updated.");
     }
     
     public int GetValidIndexWithRetry()

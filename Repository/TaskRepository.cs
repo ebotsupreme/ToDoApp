@@ -46,16 +46,24 @@ public class TaskRepository : ITaskRepository
         }
     }
 
-    public bool MarkTaskAsDone(int index)
+    public OperationResult MarkTaskAsDone(int index)
     {
-        if (tasks[index].IsDone)
+        try
         {
-            return false;
+            if (tasks[index].IsDone)
+            {
+                return new OperationResult(false, "That task is already marked as done.");
+            }
+
+            tasks[index].IsDone = true;
+            SaveToFile(filePath);
+            return new OperationResult(true);
+        }
+        catch (System.Exception ex)
+        {
+            return new OperationResult(false, $"Error completing task: {ex.Message}");
         }
 
-        tasks[index].IsDone = true;
-        SaveToFile(filePath);
-        return true;
     }
 
     public OperationResult DeleteTask(int index)
@@ -72,11 +80,18 @@ public class TaskRepository : ITaskRepository
         }
     }
 
-    public void UpdateTask(int index, string input)
+    public OperationResult UpdateTask(int index, string input)
     {
-        tasks[index].Description = input;
-        Menu.PrintPrompt("Task updated.");
-        SaveToFile(filePath);
+        try
+        {
+            tasks[index].Description = input;
+            SaveToFile(filePath);
+            return new OperationResult(true);
+        }
+        catch (System.Exception ex)
+        {
+            return new OperationResult(false, $"Error updating task: {ex.Message}");
+        }
     }
 
     private void LoadFromFile(string path)
