@@ -61,31 +61,31 @@ public class TaskRepository : ITaskRepository
         }
     }
 
-    public OperationResult DeleteTask(ToDoItem task)
+    public Result<Unit> DeleteTask(ToDoItem task)
     {
         try
         {
             tasks.Remove(task);
             SaveToFile(filePath);
-            return new OperationResult(true);
+            return Result<Unit>.Ok(Unit.Value);
         }
         catch (System.Exception ex)
         {
-            return new OperationResult(false, $"Error deleting task: {ex.Message}");
+            return Result<Unit>.Fail($"Error deleting task: {ex.Message}");
         }
     }
 
-    public OperationResult UpdateTask(ToDoItem task, string input)
+    public Result<ToDoItem> UpdateTask(ToDoItem task, string input)
     {
         try
         {
             task.Description = input;
             SaveToFile(filePath);
-            return new OperationResult(true);
+            return Result<ToDoItem>.Ok(task);
         }
         catch (System.Exception ex)
         {
-            return new OperationResult(false, $"Error updating task: {ex.Message}");
+            return Result<ToDoItem>.Fail($"Error updating task: {ex.Message}");
         }
     }
 

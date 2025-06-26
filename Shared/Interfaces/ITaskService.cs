@@ -9,6 +9,6 @@ public interface ITaskService
     Result<IReadOnlyList<ToDoItem>> GetAllCompletedTasks();
     Result<ToDoItem> AddNewTask(string description);
     Result<ToDoItem> CompleteExistingTask(ToDoItem task);
-    OperationResult UpdateExistingTask(ToDoItem task, string description);
-    OperationResult DeleteExistingTask(ToDoItem task);
+    Result<ToDoItem> UpdateExistingTask(ToDoItem task, string description);
+    Result<Unit> DeleteExistingTask(ToDoItem task);
 }

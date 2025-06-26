@@ -9,8 +9,8 @@ public interface ITaskRepository
     IReadOnlyList<ToDoItem> GetCompletedTasks();
     Result<ToDoItem> CreateTask(string description);
     Result<ToDoItem> MarkTaskAsDone(ToDoItem task);
-    OperationResult DeleteTask(ToDoItem task);
-    OperationResult UpdateTask(ToDoItem task, string newDescription);
+    Result<Unit> DeleteTask(ToDoItem task);
+    Result<ToDoItem> UpdateTask(ToDoItem task, string newDescription);
     int GetAllTasksCount();
     ToDoItem? GetTaskByIndex(int index);
 }

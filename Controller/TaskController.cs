@@ -73,15 +73,8 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
             return;
         }
 
-        var (Success, ErrorMessage) = _taskService.DeleteExistingTask(task);
-
-        if (!Success)
-        {
-            Menu.PrintPrompt(ErrorMessage ?? "An error occurred while deleting the task.");
-            return;
-        }
-        
-        Menu.PrintPrompt("Task deleted.");
+        var result = _taskService.DeleteExistingTask(task);
+        DisplaySingleTaskResult(result, "Task deleted.");
     }
 
     public void EditTask()
@@ -110,15 +103,8 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
             return;
         }
 
-        var (Success, ErrorMessage) = _taskService.UpdateExistingTask(task, input);
-
-        if (!Success)
-        {
-            Menu.PrintPrompt(ErrorMessage ?? "An error occurred while updating the task.");
-            return;
-        }
-
-        Menu.PrintPrompt("Task updated.");
+        var result = _taskService.UpdateExistingTask(task, input);
+        DisplaySingleTaskResult(result, "Task updated.");
     }
     
     public int GetValidIndexWithRetry()

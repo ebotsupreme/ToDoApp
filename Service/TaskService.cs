@@ -72,21 +72,21 @@ public class TaskService(ITaskRepository repository) : ITaskService
         return _repository.MarkTaskAsDone(task);
     }
 
-    public OperationResult DeleteExistingTask(ToDoItem task)
+    public Result<Unit> DeleteExistingTask(ToDoItem task)
     {
         return _repository.DeleteTask(task);
     }
 
-    public OperationResult UpdateExistingTask(ToDoItem task ,string description)
+    public Result<ToDoItem> UpdateExistingTask(ToDoItem task ,string description)
     {
         if (!InputValidator.IsInputValid(description))
         {
-            return new OperationResult(false, "Task description cannot be empty.");
+            return Result<ToDoItem>.Fail("Task description cannot be empty.");
         }
 
         if (IsDuplicateDescription(description, task))
         {
-            return new OperationResult(false, "A task with this description already exits.");
+            return Result<ToDoItem>.Fail("A task with this description already exits.");
         }
 
         return _repository.UpdateTask(task, description);
