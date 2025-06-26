@@ -1,7 +1,9 @@
-﻿using ToDoApp.Model;
+﻿using System.Threading.Tasks;
+using ToDoApp.Model;
 using ToDoApp.Shared;
 using ToDoApp.Shared.Interfaces;
 using ToDoApp.Utils;
+using ToDoApp.View;
 
 namespace ToDoApp.Service;
 
@@ -95,5 +97,22 @@ public class TaskService(ITaskRepository repository) : ITaskService
         var allTasks = _repository.GetAllTasks();
         return allTasks.Any(t => t.Description
             .Equals(description.Trim(), StringComparison.OrdinalIgnoreCase) && (task == null || t != task));
+    }
+
+    public Result<ToDoItem> GetTaskByIndex(int index)
+    {
+        var allTasks = _repository.GetAllTasks();
+        if (index < 0 || index >= allTasks.Count)
+        {
+            return Result<ToDoItem>.Fail(string.Format(ErrorMessages.TaskOutOfRangeFormat, index));
+        }
+
+        var task = allTasks[index];
+        if (task == null)
+        {
+            return Result<ToDoItem>.Fail(ErrorMessages.TaskNotFound);
+        }
+
+        return Result<ToDoItem>.Ok(task);
     }
 }

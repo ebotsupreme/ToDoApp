@@ -11,4 +11,6 @@ public interface ITaskService
     Result<ToDoItem> CompleteExistingTask(ToDoItem task);
     Result<ToDoItem> UpdateExistingTask(ToDoItem task, string description);
     Result<Unit> DeleteExistingTask(ToDoItem task);
+    Result<ToDoItem> GetTaskByIndex(int index);
+
 }

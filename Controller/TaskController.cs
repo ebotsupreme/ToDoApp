@@ -49,15 +49,15 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
         Menu.PrintPrompt("Enter the number of the task to mark as done:");
 
         int index = GetValidIndexWithRetry();
-        ToDoItem? task = taskRepository.GetTaskByIndex(index);
-        
-        if (task == null)
+        var taskResult = _taskService.GetTaskByIndex(index);
+
+        if (!taskResult.Success || taskResult.Data == null)
         {
-            Menu.PrintPrompt(ErrorMessages.TaskNotFound);
+            Menu.PrintPrompt(taskResult.ErrorMessage ?? ErrorMessages.ErrorOccurred);
             return;
         }
 
-        var result = _taskService.CompleteExistingTask(task);
+        var result = _taskService.CompleteExistingTask(taskResult.Data);
         DisplaySingleTaskResult(result, "Task is now marked as done.");
     }
 
@@ -66,14 +66,15 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
         Menu.PrintPrompt("Enter the number of the task to delete:");
 
         int index = GetValidIndexWithRetry();
-        ToDoItem? task = taskRepository.GetTaskByIndex(index);
+        var taskResult = _taskService.GetTaskByIndex(index);
 
-        if (task == null) {
-            Menu.PrintPrompt(ErrorMessages.TaskNotFound);
+        if (!taskResult.Success || taskResult.Data == null)
+        {
+            Menu.PrintPrompt(taskResult.ErrorMessage ?? ErrorMessages.ErrorOccurred);
             return;
         }
 
-        var result = _taskService.DeleteExistingTask(task);
+        var result = _taskService.DeleteExistingTask(taskResult.Data);
         DisplaySingleTaskResult(result, "Task deleted.");
     }
 
@@ -87,14 +88,14 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
 
     private void UpdateTaskDescription(int index)
     {
-        var task = taskRepository.GetTaskByIndex(index);
-        if (task == null)
+        var taskResult = _taskService.GetTaskByIndex(index);
+        if (!taskResult.Success || taskResult.Data == null)
         {
-            Menu.PrintPrompt(ErrorMessages.TaskNotFound);
-            return;    
+            Menu.PrintPrompt(taskResult.ErrorMessage ?? ErrorMessages.ErrorOccurred);
+            return;
         }
 
-        Menu.PrintUpdateTaskDescriptionPrompt(task.Description);
+        Menu.PrintUpdateTaskDescriptionPrompt(taskResult.Data.Description);
 
         string input = Menu.UserInput();
         if (!InputValidator.IsInputValid(input))
@@ -103,7 +104,7 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
             return;
         }
 
-        var result = _taskService.UpdateExistingTask(task, input);
+        var result = _taskService.UpdateExistingTask(taskResult.Data, input);
         DisplaySingleTaskResult(result, "Task updated.");
     }
     

@@ -43,7 +43,7 @@ public class TaskRepository : ITaskRepository
         }
         catch (System.Exception ex)
         {
-            return Result<ToDoItem>.Fail($"Error adding task: {ex.Message}");
+            return Result<ToDoItem>.Fail(string.Format(ErrorMessages.RepositoryAddErrorFormat, ex.Message));
         }
     }
 
@@ -57,7 +57,7 @@ public class TaskRepository : ITaskRepository
         }
         catch (System.Exception ex)
         {
-            return Result<ToDoItem>.Fail($"Error completing task: {ex.Message}");
+            return Result<ToDoItem>.Fail(string.Format(ErrorMessages.RepositoryCompleteErrorFormat, ex.Message));
         }
     }
 
@@ -71,7 +71,7 @@ public class TaskRepository : ITaskRepository
         }
         catch (System.Exception ex)
         {
-            return Result<Unit>.Fail($"Error deleting task: {ex.Message}");
+            return Result<Unit>.Fail(string.Format(ErrorMessages.RepositoryDeleteErrorFormat, ex.Message));
         }
     }
 
@@ -85,7 +85,7 @@ public class TaskRepository : ITaskRepository
         }
         catch (System.Exception ex)
         {
-            return Result<ToDoItem>.Fail($"Error updating task: {ex.Message}");
+            return Result<ToDoItem>.Fail(string.Format(ErrorMessages.RepositoryUpdateErrorFormat, ex.Message));
         }
     }
 
@@ -142,15 +142,5 @@ public class TaskRepository : ITaskRepository
     public int GetAllTasksCount()
     {
         return tasks.Count;
-    }
-
-    public ToDoItem? GetTaskByIndex(int index)
-    {
-        if (index < 0 || index >= tasks.Count)
-        {
-            return null;
-        }
-
-        return tasks[index];
     }
 }
