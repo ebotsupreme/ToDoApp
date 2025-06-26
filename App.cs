@@ -2,6 +2,7 @@
 using ToDoApp.Controller;
 using ToDoApp.View;
 using ToDoApp.Repository;
+using ToDoApp.Service;
 
 class App
 {
@@ -9,7 +10,8 @@ class App
     {
         bool running = true;
         TaskRepository taskRepository = new(AppConfig.FilePath);
-        TaskController taskController = new(taskRepository);
+        TaskService taskService = new(taskRepository);
+        TaskController taskController = new(taskRepository, taskService);
 
         while (running)
         {

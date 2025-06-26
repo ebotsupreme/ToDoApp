@@ -1,55 +1,32 @@
 using ToDoApp.View;
-using ToDoApp.Repository;
 using ToDoApp.Shared.Interfaces;
 using ToDoApp.Utils;
 using ToDoApp.Model;
+using ToDoApp.Shared;
 
 namespace ToDoApp.Controller;
 
-public class TaskController(ITaskRepository taskRepository)
+public class TaskController(ITaskRepository taskRepository, ITaskService taskService)
 {
     private readonly ITaskRepository taskRepository = taskRepository;
+    private readonly ITaskService _taskService = taskService;
 
     public void ViewAllTasks()
     {
-        var allTasks = taskRepository.GetAllTasks();
-
-        if (allTasks.Count == 0)
-        {
-            Menu.PrintPrompt("No tasks found.");
-            return;
-        }
-
-        Menu.PrintPrompt("Your tasks: ");
-        TaskPrinter.Print(allTasks);
+        var result = _taskService.GetAllExistingTasks();
+        DisplayTaskList(result, "Your tasks: ");
     }
 
     public void ViewIncompleteTasks()
     {
-        var incompleteTasks  = taskRepository.GetIncompleteTasks();
-
-        if (incompleteTasks.Count == 0)
-        {
-            Menu.PrintPrompt("No incomplete tasks found.");
-            return;
-        }
-
-        Menu.PrintPrompt("Your incomplete tasks: ");
-        TaskPrinter.Print(incompleteTasks);
+        var result = _taskService.GetAllIncompleteTasks();
+        DisplayTaskList(result, "Your incomplete tasks: ");
     }
 
     public void ViewCompletedTasks()
     {
-        var completeTasks = taskRepository.GetCompletedTasks();
-
-        if (completeTasks.Count == 0)
-        {
-            Menu.PrintPrompt("No completed tasks found.");
-            return;
-        }
-
-        Menu.PrintPrompt("Your completed tasks: ");
-        TaskPrinter.Print(completeTasks);
+        var result = _taskService.GetAllCompletedTasks();
+        DisplayTaskList(result, "Your completed tasks: ");
     }
 
     public void AddTask()
@@ -57,17 +34,14 @@ public class TaskController(ITaskRepository taskRepository)
         Menu.PrintPrompt("Enter a new task");
 
         string input = Menu.UserInput();
-        if (!Menu.ValidateInput(input, "Cannot add an empty task.")) return;
-
-        var (Success, ErrorMessage) = taskRepository.CreateTask(input);
-
-        if (!Success)
+        if (!InputValidator.IsInputValid(input))
         {
-            Menu.PrintPrompt(ErrorMessage ?? "An error occurred while adding the task.");
+            Menu.PrintPrompt("Cannot add an empty task.");
             return;
         }
 
-        Menu.PrintPrompt("Task added.");        
+        var result = _taskService.AddNewTask(input);
+        DisplaySingleTaskResult(result, $"Task added: {result.Data!.Description}");     
     }
 
     public void CompleteTask()
@@ -75,15 +49,16 @@ public class TaskController(ITaskRepository taskRepository)
         Menu.PrintPrompt("Enter the number of the task to mark as done:");
 
         int index = GetValidIndexWithRetry();
-        var (Success, ErrorMessage) = taskRepository.MarkTaskAsDone(index);
-
-        if (!Success)
+        ToDoItem? task = taskRepository.GetTaskByIndex(index);
+        
+        if (task == null)
         {
-            Menu.PrintPrompt(ErrorMessage ?? "An error occurred while marking the task as done.");
+            Menu.PrintPrompt("Task not found.");
             return;
         }
 
-        Menu.PrintPrompt("Task is now marked as done.");
+        var result = _taskService.CompleteExistingTask(task);
+        DisplaySingleTaskResult(result, "Task is now marked as done.");
     }
 
     public void RemoveTask()
@@ -91,15 +66,15 @@ public class TaskController(ITaskRepository taskRepository)
         Menu.PrintPrompt("Enter the number of the task to delete:");
 
         int index = GetValidIndexWithRetry();
-        var (Success, ErrorMessage) = taskRepository.DeleteTask(index);
+        ToDoItem? task = taskRepository.GetTaskByIndex(index);
 
-        if (!Success)
-        {
-            Menu.PrintPrompt(ErrorMessage ?? "An error occurred while deleting the task.");
+        if (task == null) {
+            Menu.PrintPrompt("Task not found.");
             return;
         }
-        
-        Menu.PrintPrompt("Task deleted.");
+
+        var result = _taskService.DeleteExistingTask(task);
+        DisplaySingleTaskResult(result, "Task deleted.");
     }
 
     public void EditTask()
@@ -122,17 +97,14 @@ public class TaskController(ITaskRepository taskRepository)
         Menu.PrintUpdateTaskDescriptionPrompt(task.Description);
 
         string input = Menu.UserInput();
-        if (!Menu.ValidateInput(input, "Cannot add an empty description.")) return;
-
-        var (Success, ErrorMessage) = taskRepository.UpdateTask(index, input);
-
-        if (!Success)
+        if (!InputValidator.IsInputValid(input))
         {
-            Menu.PrintPrompt(ErrorMessage ?? "An error occurred while updating the task.");
+            Menu.PrintPrompt("Cannot add an empty description.");
             return;
         }
 
-        Menu.PrintPrompt("Task updated.");
+        var result = _taskService.UpdateExistingTask(task, input);
+        DisplaySingleTaskResult(result, "Task updated.");
     }
     
     public int GetValidIndexWithRetry()
@@ -159,5 +131,29 @@ public class TaskController(ITaskRepository taskRepository)
 
             return index;
         }
+    }
+
+    private static void DisplayTaskList(Result<IReadOnlyList<ToDoItem>> result, string heading)
+    {
+        if (!result.Success || result.Data == null)
+        {
+            Menu.PrintPrompt(result.ErrorMessage ?? "An error occured.");
+            return;
+        }
+
+        Menu.PrintPrompt(heading);
+        TaskPrinter.Print(result.Data);
+    }
+
+    private static void DisplaySingleTaskResult<T>(Result<T> result, string heading)
+    {
+        if (!result.Success || result.Data == null)
+        {
+            Menu.PrintPrompt(result.ErrorMessage ?? "An error occured.");
+            return;
+        }
+
+        Menu.PrintPrompt(heading);
+        Console.WriteLine(result.Data);
     }
 }

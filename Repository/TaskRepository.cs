@@ -22,75 +22,70 @@ public class TaskRepository : ITaskRepository
         return tasks;
     }
 
-    public List<ToDoItem> GetIncompleteTasks()
+    public IReadOnlyList<ToDoItem> GetIncompleteTasks()
     {
         return [.. TaskFilter.FilterTasks(tasks, false)];
     }
 
-    public List<ToDoItem> GetCompletedTasks()
+    public IReadOnlyList<ToDoItem> GetCompletedTasks()
     {
         return [.. TaskFilter.FilterTasks(tasks, true)];
     }
 
-    public OperationResult CreateTask(string description)
+    public Result<ToDoItem> CreateTask(string description)
     {
         try
         {
-            tasks.Add(new ToDoItem(description));
+            var newTask = new ToDoItem(description);
+            tasks.Add(newTask);
             SaveToFile(filePath);
-            return new OperationResult(true);
+            return Result<ToDoItem>.Ok(newTask);
         }
         catch (System.Exception ex)
         {
-            return new OperationResult(false, $"Error adding task: {ex.Message}");
+            return Result<ToDoItem>.Fail($"Error adding task: {ex.Message}");
         }
     }
 
-    public OperationResult MarkTaskAsDone(int index)
+    public Result<ToDoItem> MarkTaskAsDone(ToDoItem task)
     {
         try
         {
-            if (tasks[index].IsDone)
-            {
-                return new OperationResult(false, "That task is already marked as done.");
-            }
-
-            tasks[index].IsDone = true;
+            task.IsDone = true;
             SaveToFile(filePath);
-            return new OperationResult(true);
+            return Result<ToDoItem>.Ok(task);
         }
         catch (System.Exception ex)
         {
-            return new OperationResult(false, $"Error completing task: {ex.Message}");
-        }
-
-    }
-
-    public OperationResult DeleteTask(int index)
-    {
-        try
-        {
-            tasks.RemoveAt(index);
-            SaveToFile(filePath);
-            return new OperationResult(true);
-        }
-        catch (System.Exception ex)
-        {
-            return new OperationResult(false, $"Error deleting task: {ex.Message}");
+            return Result<ToDoItem>.Fail($"Error completing task: {ex.Message}");
         }
     }
 
-    public OperationResult UpdateTask(int index, string input)
+    public Result<Unit> DeleteTask(ToDoItem task)
     {
         try
         {
-            tasks[index].Description = input;
+            tasks.Remove(task);
             SaveToFile(filePath);
-            return new OperationResult(true);
+            return Result<Unit>.Ok(Unit.Value);
         }
         catch (System.Exception ex)
         {
-            return new OperationResult(false, $"Error updating task: {ex.Message}");
+            return Result<Unit>.Fail($"Error deleting task: {ex.Message}");
+        }
+    }
+
+    public Result<ToDoItem> UpdateTask(ToDoItem task, string input)
+    {
+        try
+        {
+            task.Description = input;
+            SaveToFile(filePath);
+            return Result<ToDoItem>.Ok(task);
+        }
+        catch (System.Exception ex)
+        {
+            return Result<ToDoItem>.Fail($"Error updating task: {ex.Message}");
         }
     }
 
