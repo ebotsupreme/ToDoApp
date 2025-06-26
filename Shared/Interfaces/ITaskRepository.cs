@@ -12,5 +12,4 @@ public interface ITaskRepository
     Result<Unit> DeleteTask(ToDoItem task);
     Result<ToDoItem> UpdateTask(ToDoItem task, string newDescription);
     int GetAllTasksCount();
-    ToDoItem? GetTaskByIndex(int index);
 }
