@@ -9,7 +9,7 @@ public interface ITaskRepository
     List<ToDoItem> GetCompletedTasks();
     OperationResult CreateTask(string description);
     OperationResult MarkTaskAsDone(ToDoItem task);
-    OperationResult DeleteTask(int index);
+    OperationResult DeleteTask(ToDoItem task);
     OperationResult UpdateTask(ToDoItem task, string newDescription);
     int GetAllTasksCount();
     ToDoItem? GetTaskByIndex(int index);

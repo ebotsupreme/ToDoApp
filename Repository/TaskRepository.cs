@@ -60,11 +60,11 @@ public class TaskRepository : ITaskRepository
         }
     }
 
-    public OperationResult DeleteTask(int index)
+    public OperationResult DeleteTask(ToDoItem task)
     {
         try
         {
-            tasks.RemoveAt(index);
+            tasks.Remove(task);
             SaveToFile(filePath);
             return new OperationResult(true);
         }

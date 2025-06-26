@@ -1,5 +1,6 @@
 ﻿using System;
 using ToDoApp.Model;
+using ToDoApp.Repository;
 using ToDoApp.Shared;
 using ToDoApp.Shared.Interfaces;
 using ToDoApp.Utils;
@@ -9,6 +10,18 @@ namespace ToDoApp.Service;
 public class TaskService(ITaskRepository repository) : ITaskService
 {
     private readonly ITaskRepository _repository = repository;
+
+    public Result<IReadOnlyList<ToDoItem>> GetAllExistingTasks()
+    {
+        var allTasks = _repository.GetAllTasks();
+
+        if (allTasks.Count == 0)
+        {
+            return Result<IReadOnlyList<ToDoItem>>.Fail("No tasks found.");
+        }
+
+        return Result<IReadOnlyList<ToDoItem>>.Ok(allTasks);
+    }
 
     public OperationResult AddNewTask(string description)
     {
@@ -33,6 +46,11 @@ public class TaskService(ITaskRepository repository) : ITaskService
         }
 
         return _repository.MarkTaskAsDone(task);
+    }
+
+    public OperationResult DeleteExistingTask(ToDoItem task)
+    {
+        return _repository.DeleteTask(task);
     }
 
     public OperationResult UpdateExistingTask(ToDoItem task ,string description)

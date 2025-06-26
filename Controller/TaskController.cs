@@ -12,16 +12,16 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
 
     public void ViewAllTasks()
     {
-        var allTasks = taskRepository.GetAllTasks();
+        var result = _taskService.GetAllExistingTasks();
 
-        if (allTasks.Count == 0)
+        if (!result.Success || result.Data == null)
         {
-            Menu.PrintPrompt("No tasks found.");
+            Menu.PrintPrompt(result.ErrorMessage ?? "An error occurred.");
             return;
         }
 
         Menu.PrintPrompt("Your tasks: ");
-        TaskPrinter.Print(allTasks);
+        TaskPrinter.Print(result.Data);
     }
 
     public void ViewIncompleteTasks()
@@ -103,7 +103,14 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
         Menu.PrintPrompt("Enter the number of the task to delete:");
 
         int index = GetValidIndexWithRetry();
-        var (Success, ErrorMessage) = taskRepository.DeleteTask(index);
+        ToDoItem? task = taskRepository.GetTaskByIndex(index);
+
+        if (task == null) {
+            Menu.PrintPrompt("Task not found.");
+            return;
+        }
+
+        var (Success, ErrorMessage) = _taskService.DeleteExistingTask(task);
 
         if (!Success)
         {
