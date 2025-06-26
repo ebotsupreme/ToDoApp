@@ -1,6 +1,4 @@
-﻿using System;
-using ToDoApp.Model;
-using ToDoApp.Repository;
+﻿using ToDoApp.Model;
 using ToDoApp.Shared;
 using ToDoApp.Shared.Interfaces;
 using ToDoApp.Utils;
@@ -17,7 +15,7 @@ public class TaskService(ITaskRepository repository) : ITaskService
 
         if (allTasks.Count == 0)
         {
-            return Result<IReadOnlyList<ToDoItem>>.Fail("No tasks found.");
+            return Result<IReadOnlyList<ToDoItem>>.Fail(ErrorMessages.NoTasks);
         }
 
         return Result<IReadOnlyList<ToDoItem>>.Ok(allTasks);
@@ -29,7 +27,7 @@ public class TaskService(ITaskRepository repository) : ITaskService
 
         if (incompleteTasks.Count == 0)
         {
-            return Result<IReadOnlyList<ToDoItem>>.Fail("No incomplete tasks found.");
+            return Result<IReadOnlyList<ToDoItem>>.Fail(ErrorMessages.NoIncompleteTasks);
         }
 
         return Result<IReadOnlyList<ToDoItem>>.Ok(incompleteTasks);
@@ -41,7 +39,7 @@ public class TaskService(ITaskRepository repository) : ITaskService
 
         if (completedTasks.Count == 0)
         {
-            return Result<IReadOnlyList<ToDoItem>>.Fail("No completed tasks found.");
+            return Result<IReadOnlyList<ToDoItem>>.Fail(ErrorMessages.NoCompletedTasks);
         }
 
         return Result<IReadOnlyList<ToDoItem>>.Ok(completedTasks);
@@ -51,12 +49,12 @@ public class TaskService(ITaskRepository repository) : ITaskService
     {
         if (!InputValidator.IsInputValid(description))
         {
-            return Result<ToDoItem>.Fail("Task description cannot be empty.");
+            return Result<ToDoItem>.Fail(ErrorMessages.EmptyDescription);
         }
 
         if (IsDuplicateDescription(description))
         {
-            return Result<ToDoItem>.Fail("A task with this description already exits.");
+            return Result<ToDoItem>.Fail(ErrorMessages.DuplicateDescription);
         }
 
         return _repository.CreateTask(description.Trim());
@@ -66,7 +64,7 @@ public class TaskService(ITaskRepository repository) : ITaskService
     {
         if (task.IsDone)
         {
-            return Result<ToDoItem>.Fail("That task is already marked as done.");
+            return Result<ToDoItem>.Fail(ErrorMessages.TaskAlreadyDone);
         }
 
         return _repository.MarkTaskAsDone(task);
@@ -81,12 +79,12 @@ public class TaskService(ITaskRepository repository) : ITaskService
     {
         if (!InputValidator.IsInputValid(description))
         {
-            return Result<ToDoItem>.Fail("Task description cannot be empty.");
+            return Result<ToDoItem>.Fail(ErrorMessages.EmptyDescription);
         }
 
         if (IsDuplicateDescription(description, task))
         {
-            return Result<ToDoItem>.Fail("A task with this description already exits.");
+            return Result<ToDoItem>.Fail(ErrorMessages.DuplicateDescription);
         }
 
         return _repository.UpdateTask(task, description);

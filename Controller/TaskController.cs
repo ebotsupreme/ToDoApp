@@ -36,7 +36,7 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
         string input = Menu.UserInput();
         if (!InputValidator.IsInputValid(input))
         {
-            Menu.PrintPrompt("Cannot add an empty task.");
+            Menu.PrintPrompt(ErrorMessages.EmptyTask);
             return;
         }
 
@@ -53,7 +53,7 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
         
         if (task == null)
         {
-            Menu.PrintPrompt("Task not found.");
+            Menu.PrintPrompt(ErrorMessages.TaskNotFound);
             return;
         }
 
@@ -69,7 +69,7 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
         ToDoItem? task = taskRepository.GetTaskByIndex(index);
 
         if (task == null) {
-            Menu.PrintPrompt("Task not found.");
+            Menu.PrintPrompt(ErrorMessages.TaskNotFound);
             return;
         }
 
@@ -90,7 +90,7 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
         var task = taskRepository.GetTaskByIndex(index);
         if (task == null)
         {
-            Menu.PrintPrompt("Task not found.");
+            Menu.PrintPrompt(ErrorMessages.TaskNotFound);
             return;    
         }
 
@@ -99,7 +99,7 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
         string input = Menu.UserInput();
         if (!InputValidator.IsInputValid(input))
         {
-            Menu.PrintPrompt("Cannot add an empty description.");
+            Menu.PrintPrompt(ErrorMessages.EmptyDescription);
             return;
         }
 
@@ -116,7 +116,7 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
 
             if (!success)
             {
-                Menu.PrintPrompt("Input is not a number. Please enter a valid task number.");
+                Menu.PrintPrompt(ErrorMessages.NotANumber);
                 continue;
             }
 
@@ -137,7 +137,7 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
     {
         if (!result.Success || result.Data == null)
         {
-            Menu.PrintPrompt(result.ErrorMessage ?? "An error occured.");
+            Menu.PrintPrompt(result.ErrorMessage ?? ErrorMessages.ErrorOccurred);
             return;
         }
 
@@ -149,7 +149,7 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
     {
         if (!result.Success || result.Data == null)
         {
-            Menu.PrintPrompt(result.ErrorMessage ?? "An error occured.");
+            Menu.PrintPrompt(result.ErrorMessage ?? ErrorMessages.ErrorOccurred);
             return;
         }
 
