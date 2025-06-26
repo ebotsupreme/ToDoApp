@@ -2,6 +2,7 @@ using ToDoApp.View;
 using ToDoApp.Shared.Interfaces;
 using ToDoApp.Utils;
 using ToDoApp.Model;
+using ToDoApp.Shared;
 
 namespace ToDoApp.Controller;
 
@@ -13,43 +14,19 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
     public void ViewAllTasks()
     {
         var result = _taskService.GetAllExistingTasks();
-
-        if (!result.Success || result.Data == null)
-        {
-            Menu.PrintPrompt(result.ErrorMessage ?? "An error occurred.");
-            return;
-        }
-
-        Menu.PrintPrompt("Your tasks: ");
-        TaskPrinter.Print(result.Data);
+        DisplayTaskList(result, "Your tasks: ");
     }
 
     public void ViewIncompleteTasks()
     {
-        var incompleteTasks  = taskRepository.GetIncompleteTasks();
-
-        if (incompleteTasks.Count == 0)
-        {
-            Menu.PrintPrompt("No incomplete tasks found.");
-            return;
-        }
-
-        Menu.PrintPrompt("Your incomplete tasks: ");
-        TaskPrinter.Print(incompleteTasks);
+        var result = _taskService.GetAllIncompleteTasks();
+        DisplayTaskList(result, "Your incomplete tasks: ");
     }
 
     public void ViewCompletedTasks()
     {
-        var completeTasks = taskRepository.GetCompletedTasks();
-
-        if (completeTasks.Count == 0)
-        {
-            Menu.PrintPrompt("No completed tasks found.");
-            return;
-        }
-
-        Menu.PrintPrompt("Your completed tasks: ");
-        TaskPrinter.Print(completeTasks);
+        var result = _taskService.GetAllCompletedTasks();
+        DisplayTaskList(result, "Your completed tasks: ");
     }
 
     public void AddTask()
@@ -182,5 +159,17 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
 
             return index;
         }
+    }
+
+    private static void DisplayTaskList(Result<IReadOnlyList<ToDoItem>> result, string heading)
+    {
+        if (!result.Success || result.Data == null)
+        {
+            Menu.PrintPrompt(result.ErrorMessage ?? "An error occured.");
+            return;
+        }
+
+        Menu.PrintPrompt(heading);
+        TaskPrinter.Print(result.Data);
     }
 }

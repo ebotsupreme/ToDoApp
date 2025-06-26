@@ -22,12 +22,12 @@ public class TaskRepository : ITaskRepository
         return tasks;
     }
 
-    public List<ToDoItem> GetIncompleteTasks()
+    public IReadOnlyList<ToDoItem> GetIncompleteTasks()
     {
         return [.. TaskFilter.FilterTasks(tasks, false)];
     }
 
-    public List<ToDoItem> GetCompletedTasks()
+    public IReadOnlyList<ToDoItem> GetCompletedTasks()
     {
         return [.. TaskFilter.FilterTasks(tasks, true)];
     }

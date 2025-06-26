@@ -5,8 +5,8 @@ namespace ToDoApp.Shared.Interfaces;
 public interface ITaskRepository
 {
     IReadOnlyList<ToDoItem> GetAllTasks();
-    List<ToDoItem> GetIncompleteTasks();
-    List<ToDoItem> GetCompletedTasks();
+    IReadOnlyList<ToDoItem> GetIncompleteTasks();
+    IReadOnlyList<ToDoItem> GetCompletedTasks();
     OperationResult CreateTask(string description);
     OperationResult MarkTaskAsDone(ToDoItem task);
     OperationResult DeleteTask(ToDoItem task);

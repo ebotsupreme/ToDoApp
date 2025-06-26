@@ -23,6 +23,30 @@ public class TaskService(ITaskRepository repository) : ITaskService
         return Result<IReadOnlyList<ToDoItem>>.Ok(allTasks);
     }
 
+    public Result<IReadOnlyList<ToDoItem>> GetAllIncompleteTasks()
+    {
+        var incompleteTasks = _repository.GetIncompleteTasks();
+
+        if (incompleteTasks.Count == 0)
+        {
+            return Result<IReadOnlyList<ToDoItem>>.Fail("No incomplete tasks found.");
+        }
+
+        return Result<IReadOnlyList<ToDoItem>>.Ok(incompleteTasks);
+    }
+
+    public Result<IReadOnlyList<ToDoItem>> GetAllCompletedTasks()
+    {
+        var completedTasks = _repository.GetCompletedTasks();
+
+        if (completedTasks.Count == 0)
+        {
+            return Result<IReadOnlyList<ToDoItem>>.Fail("No completed tasks found.");
+        }
+
+        return Result<IReadOnlyList<ToDoItem>>.Ok(completedTasks);
+    }
+
     public OperationResult AddNewTask(string description)
     {
         if (!InputValidator.IsInputValid(description))
@@ -72,6 +96,6 @@ public class TaskService(ITaskRepository repository) : ITaskService
     {
         var allTasks = _repository.GetAllTasks();
         return allTasks.Any(t => t.Description
-            .Equals(description.Trim(), StringComparison.OrdinalIgnoreCase) && (task == null | t != task));
+            .Equals(description.Trim(), StringComparison.OrdinalIgnoreCase) && (task == null || t != task));
     }
 }
