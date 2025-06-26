@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+﻿using System;
 using ToDoApp.Model;
 using ToDoApp.Shared;
 using ToDoApp.Shared.Interfaces;
@@ -23,6 +23,16 @@ public class TaskService(ITaskRepository repository) : ITaskService
         }
 
         return _repository.CreateTask(description.Trim());
+    }
+
+    public OperationResult CompleteExistingTask(ToDoItem task)
+    {
+        if (task.IsDone)
+        {
+            return new OperationResult(false, "That task is already marked as done.");
+        }
+
+        return _repository.MarkTaskAsDone(task);
     }
 
     public OperationResult UpdateExistingTask(ToDoItem task ,string description)

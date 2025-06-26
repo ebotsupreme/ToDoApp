@@ -46,16 +46,11 @@ public class TaskRepository : ITaskRepository
         }
     }
 
-    public OperationResult MarkTaskAsDone(int index)
+    public OperationResult MarkTaskAsDone(ToDoItem task)
     {
         try
         {
-            if (tasks[index].IsDone)
-            {
-                return new OperationResult(false, "That task is already marked as done.");
-            }
-
-            tasks[index].IsDone = true;
+            task.IsDone = true;
             SaveToFile(filePath);
             return new OperationResult(true);
         }
@@ -63,7 +58,6 @@ public class TaskRepository : ITaskRepository
         {
             return new OperationResult(false, $"Error completing task: {ex.Message}");
         }
-
     }
 
     public OperationResult DeleteTask(int index)

@@ -1,6 +1,7 @@
 using ToDoApp.View;
 using ToDoApp.Shared.Interfaces;
 using ToDoApp.Utils;
+using ToDoApp.Model;
 
 namespace ToDoApp.Controller;
 
@@ -78,7 +79,15 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
         Menu.PrintPrompt("Enter the number of the task to mark as done:");
 
         int index = GetValidIndexWithRetry();
-        var (Success, ErrorMessage) = taskRepository.MarkTaskAsDone(index);
+        ToDoItem? task = taskRepository.GetTaskByIndex(index);
+        
+        if (task == null)
+        {
+            Menu.PrintPrompt("Task not found.");
+            return;
+        }
+
+        var (Success, ErrorMessage) = _taskService.CompleteExistingTask(task);
 
         if (!Success)
         {
