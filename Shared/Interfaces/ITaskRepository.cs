@@ -7,8 +7,8 @@ public interface ITaskRepository
     IReadOnlyList<ToDoItem> GetAllTasks();
     IReadOnlyList<ToDoItem> GetIncompleteTasks();
     IReadOnlyList<ToDoItem> GetCompletedTasks();
-    OperationResult CreateTask(string description);
-    OperationResult MarkTaskAsDone(ToDoItem task);
+    Result<ToDoItem> CreateTask(string description);
+    Result<ToDoItem> MarkTaskAsDone(ToDoItem task);
     OperationResult DeleteTask(ToDoItem task);
     OperationResult UpdateTask(ToDoItem task, string newDescription);
     int GetAllTasksCount();

@@ -47,26 +47,26 @@ public class TaskService(ITaskRepository repository) : ITaskService
         return Result<IReadOnlyList<ToDoItem>>.Ok(completedTasks);
     }
 
-    public OperationResult AddNewTask(string description)
+    public Result<ToDoItem> AddNewTask(string description)
     {
         if (!InputValidator.IsInputValid(description))
         {
-            return new OperationResult(false, "Task description cannot be empty.");
+            return Result<ToDoItem>.Fail("Task description cannot be empty.");
         }
 
         if (IsDuplicateDescription(description))
         {
-            return new OperationResult(false, "A task with this description already exits.");
+            return Result<ToDoItem>.Fail("A task with this description already exits.");
         }
 
         return _repository.CreateTask(description.Trim());
     }
 
-    public OperationResult CompleteExistingTask(ToDoItem task)
+    public Result<ToDoItem> CompleteExistingTask(ToDoItem task)
     {
         if (task.IsDone)
         {
-            return new OperationResult(false, "That task is already marked as done.");
+            return Result<ToDoItem>.Fail("That task is already marked as done.");
         }
 
         return _repository.MarkTaskAsDone(task);

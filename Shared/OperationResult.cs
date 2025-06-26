@@ -1,3 +1,3 @@
 namespace ToDoApp.Shared;
 
-public record OperationResult(bool success, string? ErrorMessage = null);
+public record OperationResult(bool Success, string? ErrorMessage = null);

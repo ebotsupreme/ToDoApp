@@ -32,31 +32,32 @@ public class TaskRepository : ITaskRepository
         return [.. TaskFilter.FilterTasks(tasks, true)];
     }
 
-    public OperationResult CreateTask(string description)
+    public Result<ToDoItem> CreateTask(string description)
     {
         try
         {
-            tasks.Add(new ToDoItem(description));
+            var newTask = new ToDoItem(description);
+            tasks.Add(newTask);
             SaveToFile(filePath);
-            return new OperationResult(true);
+            return Result<ToDoItem>.Ok(newTask);
         }
         catch (System.Exception ex)
         {
-            return new OperationResult(false, $"Error adding task: {ex.Message}");
+            return Result<ToDoItem>.Fail($"Error adding task: {ex.Message}");
         }
     }
 
-    public OperationResult MarkTaskAsDone(ToDoItem task)
+    public Result<ToDoItem> MarkTaskAsDone(ToDoItem task)
     {
         try
         {
             task.IsDone = true;
             SaveToFile(filePath);
-            return new OperationResult(true);
+            return Result<ToDoItem>.Ok(task);
         }
         catch (System.Exception ex)
         {
-            return new OperationResult(false, $"Error completing task: {ex.Message}");
+            return Result<ToDoItem>.Fail($"Error completing task: {ex.Message}");
         }
     }
 

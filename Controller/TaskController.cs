@@ -40,15 +40,8 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
             return;
         }
 
-        var (Success, ErrorMessage) = _taskService.AddNewTask(input);
-
-        if (!Success)
-        {
-            Menu.PrintPrompt(ErrorMessage ?? "An error occurred while adding the task.");
-            return;
-        }
-
-        Menu.PrintPrompt("Task added.");        
+        var result = _taskService.AddNewTask(input);
+        DisplaySingleTaskResult(result, $"Task added: {result.Data!.Description}");     
     }
 
     public void CompleteTask()
@@ -64,15 +57,8 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
             return;
         }
 
-        var (Success, ErrorMessage) = _taskService.CompleteExistingTask(task);
-
-        if (!Success)
-        {
-            Menu.PrintPrompt(ErrorMessage ?? "An error occurred while marking the task as done.");
-            return;
-        }
-
-        Menu.PrintPrompt("Task is now marked as done.");
+        var result = _taskService.CompleteExistingTask(task);
+        DisplaySingleTaskResult(result, "Task is now marked as done.");
     }
 
     public void RemoveTask()
@@ -171,5 +157,17 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
 
         Menu.PrintPrompt(heading);
         TaskPrinter.Print(result.Data);
+    }
+
+    private static void DisplaySingleTaskResult<T>(Result<T> result, string heading)
+    {
+        if (!result.Success || result.Data == null)
+        {
+            Menu.PrintPrompt(result.ErrorMessage ?? "An error occured.");
+            return;
+        }
+
+        Menu.PrintPrompt(heading);
+        Console.WriteLine(result.Data);
     }
 }
