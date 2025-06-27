@@ -9,6 +9,7 @@ namespace ToDoApp.Repository;
 public class TaskRepository : ITaskRepository
 {
     private readonly List<ToDoItem> tasks = [];
+    private readonly List<ToDoItem> currentTasks = [];
     private readonly string filePath;
 
     public TaskRepository(string path)
@@ -36,7 +37,7 @@ public class TaskRepository : ITaskRepository
     {
         try
         {
-            var newTask = new ToDoItem(description);
+            var newTask = new ToDoItem(Guid.NewGuid(), description);
             tasks.Add(newTask);
             SaveToFile(filePath);
             return Result<ToDoItem>.Ok(newTask);
@@ -105,11 +106,16 @@ public class TaskRepository : ITaskRepository
             {
                 string[] parts = line.Split("|");
 
-                if (parts.Length == 2)
+                if (parts.Length == 3)
                 {
-                    bool isDone = parts[0].Equals("true", StringComparison.OrdinalIgnoreCase);
-                    string description = parts[1];
-                    tasks.Add(new ToDoItem(description) { IsDone = isDone });
+                    if (!Guid.TryParse(parts[0], out Guid id))
+                    {
+                        Menu.PrintPrompt($"Invalid GUID format in task data: {parts[0]} - skipping this entry.");
+                        continue;
+                    }    
+                    bool isDone = parts[1].Equals("true", StringComparison.OrdinalIgnoreCase);
+                    string description = parts[2];
+                    tasks.Add(new ToDoItem(id, description) { IsDone = isDone });
                 }
             }
         }
@@ -127,7 +133,7 @@ public class TaskRepository : ITaskRepository
 
             foreach (var task in tasks)
             {
-                var line = $"{task.IsDone}|{task.Description}";
+                var line = $"{task.Id}|{task.IsDone}|{task.Description}";
                 lines.Add(line);
             }
 
@@ -142,5 +148,25 @@ public class TaskRepository : ITaskRepository
     public int GetAllTasksCount()
     {
         return tasks.Count;
+    }
+
+    public IReadOnlyList<ToDoItem> GetCurrentTasks()
+    {
+        return currentTasks;
+    }
+
+    public void StoreCurrentTasks(List<ToDoItem> currentTaskList)
+    {
+        try
+        {
+            // clear currentTasks, and set it to currentTaskList since currentTasks is readOnly
+            currentTasks.Clear();
+            currentTasks.AddRange(currentTaskList);
+        }
+        catch (System.Exception ex)
+        {
+            // TODO: Add logging for internal failure 
+            Console.WriteLine(string.Format(ErrorMessages.RepositoryAddErrorFormat, ex.Message));
+        }
     }
 }

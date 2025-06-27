@@ -12,5 +12,6 @@ public interface ITaskService
     Result<ToDoItem> UpdateExistingTask(ToDoItem task, string description);
     Result<Unit> DeleteExistingTask(ToDoItem task);
     Result<ToDoItem> GetTaskByIndex(int index);
-
+    Result<IReadOnlyList<ToDoItem>> GetCurrentTasks();
+    void StoreCurrentTasksList(List<ToDoItem> currentTaskList);
 }

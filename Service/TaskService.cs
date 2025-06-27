@@ -115,4 +115,30 @@ public class TaskService(ITaskRepository repository) : ITaskService
 
         return Result<ToDoItem>.Ok(task);
     }
+
+    public void StoreCurrentTasksList(List<ToDoItem> currentTaskList)
+    {
+        if (currentTaskList == null || currentTaskList.Count == 0)
+        {
+            // TODO: log here
+            //logger.LogWarning("Attempted to store empty currentTaskList.";
+            return;
+        }
+
+        _repository.StoreCurrentTasks(currentTaskList);
+    }
+
+    public Result<IReadOnlyList<ToDoItem>> GetCurrentTasks()
+    {
+        var currentTasks = _repository.GetCurrentTasks();
+
+        if (currentTasks.Count == 0)
+        {
+            // TODO: log here
+            //logger.Log("An error occurred: " + ex.Message);
+            return Result<IReadOnlyList<ToDoItem>>.Fail(ErrorMessages.NoTasks);
+        }
+
+        return Result<IReadOnlyList<ToDoItem>>.Ok(currentTasks);
+    }
 }

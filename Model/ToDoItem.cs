@@ -1,14 +1,10 @@
 namespace ToDoApp.Model;
 
-public class ToDoItem
+public class ToDoItem(Guid id, string description)
 {
-    public string Description { get; set; }
+    public Guid Id { get; set; } = id;
+    public string Description { get; set; } = description;
     public bool IsDone { get; set; } = false;
-
-    public ToDoItem(string description)
-    {
-        Description = description;
-    }
 
     public override string ToString()
     {
