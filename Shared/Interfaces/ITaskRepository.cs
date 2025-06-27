@@ -11,5 +11,7 @@ public interface ITaskRepository
     Result<ToDoItem> MarkTaskAsDone(ToDoItem task);
     Result<Unit> DeleteTask(ToDoItem task);
     Result<ToDoItem> UpdateTask(ToDoItem task, string newDescription);
+    IReadOnlyList<ToDoItem> GetCurrentTasks();
     int GetAllTasksCount();
+    void StoreCurrentTasks(List<ToDoItem> currentTaskList);
 }

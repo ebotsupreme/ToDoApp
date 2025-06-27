@@ -9,6 +9,7 @@ namespace ToDoApp.Repository;
 public class TaskRepository : ITaskRepository
 {
     private readonly List<ToDoItem> tasks = [];
+    private readonly List<ToDoItem> currentTasks = [];
     private readonly string filePath;
 
     public TaskRepository(string path)
@@ -147,5 +148,25 @@ public class TaskRepository : ITaskRepository
     public int GetAllTasksCount()
     {
         return tasks.Count;
+    }
+
+    public IReadOnlyList<ToDoItem> GetCurrentTasks()
+    {
+        return currentTasks;
+    }
+
+    public void StoreCurrentTasks(List<ToDoItem> currentTaskList)
+    {
+        try
+        {
+            // clear currentTasks, and set it to currentTaskList since currentTasks is readOnly
+            currentTasks.Clear();
+            currentTasks.AddRange(currentTaskList);
+        }
+        catch (System.Exception ex)
+        {
+            // TODO: Add logging for internal failure 
+            Console.WriteLine(string.Format(ErrorMessages.RepositoryAddErrorFormat, ex.Message));
+        }
     }
 }

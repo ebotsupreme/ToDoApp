@@ -48,16 +48,14 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
     {
         Menu.PrintPrompt("Enter the number of the task to mark as done:");
 
-        int index = GetValidIndexWithRetry();
-        var taskResult = _taskService.GetTaskByIndex(index);
-
-        if (!taskResult.Success || taskResult.Data == null)
+        var currentTask = GetCurrentTask();
+        if (!currentTask.Success || currentTask.Data == null)
         {
-            Menu.PrintPrompt(taskResult.ErrorMessage ?? ErrorMessages.ErrorOccurred);
+            Menu.PrintPrompt(currentTask.ErrorMessage ?? ErrorMessages.ErrorOccurred);
             return;
         }
 
-        var result = _taskService.CompleteExistingTask(taskResult.Data);
+        var result = _taskService.CompleteExistingTask(currentTask.Data);
         DisplaySingleTaskResult(result, "Task is now marked as done.");
     }
 
@@ -65,16 +63,14 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
     {
         Menu.PrintPrompt("Enter the number of the task to delete:");
 
-        int index = GetValidIndexWithRetry();
-        var taskResult = _taskService.GetTaskByIndex(index);
-
-        if (!taskResult.Success || taskResult.Data == null)
+        var currentTask = GetCurrentTask();
+        if (!currentTask.Success || currentTask.Data == null)
         {
-            Menu.PrintPrompt(taskResult.ErrorMessage ?? ErrorMessages.ErrorOccurred);
+            Menu.PrintPrompt(currentTask.ErrorMessage ?? ErrorMessages.ErrorOccurred);
             return;
         }
 
-        var result = _taskService.DeleteExistingTask(taskResult.Data);
+        var result = _taskService.DeleteExistingTask(currentTask.Data);
         DisplaySingleTaskResult(result, "Task deleted.");
     }
 
@@ -82,20 +78,15 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
     {
         Menu.PrintPrompt("Enter the number of the task you want to edit:");
 
-        int index = GetValidIndexWithRetry();
-        UpdateTaskDescription(index);
-    }
-
-    private void UpdateTaskDescription(int index)
-    {
-        var taskResult = _taskService.GetTaskByIndex(index);
-        if (!taskResult.Success || taskResult.Data == null)
+        var currentTask = GetCurrentTask();
+        if (!currentTask.Success || currentTask.Data == null)
         {
-            Menu.PrintPrompt(taskResult.ErrorMessage ?? ErrorMessages.ErrorOccurred);
+            Menu.PrintPrompt(currentTask.ErrorMessage ?? ErrorMessages.ErrorOccurred);
             return;
         }
 
-        Menu.PrintUpdateTaskDescriptionPrompt(taskResult.Data.Description);
+
+        Menu.PrintUpdateTaskDescriptionPrompt(currentTask.Data.Description);
 
         string input = Menu.UserInput();
         if (!InputValidator.IsInputValid(input))
@@ -104,11 +95,11 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
             return;
         }
 
-        var result = _taskService.UpdateExistingTask(taskResult.Data, input);
+        var result = _taskService.UpdateExistingTask(currentTask.Data, input);
         DisplaySingleTaskResult(result, "Task updated.");
     }
     
-    public int GetValidIndexWithRetry()
+    public static int GetValidIndexWithRetry(IReadOnlyList<ToDoItem> currentDisplayedTasks)
     {
         while (true)
         {
@@ -123,9 +114,9 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
 
             index -= 1;
 
-            if (index < 0 || index >= taskRepository.GetAllTasksCount())
+            if (index < 0 || index >= currentDisplayedTasks.Count)
             {
-                int maxTasks = taskRepository.GetAllTasksCount();
+                int maxTasks = currentDisplayedTasks.Count;
                 Menu.ShowOutOfRangeMessage(maxTasks);
                 continue;
             }
@@ -134,7 +125,7 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
         }
     }
 
-    private static void DisplayTaskList(Result<IReadOnlyList<ToDoItem>> result, string heading)
+    private void DisplayTaskList(Result<IReadOnlyList<ToDoItem>> result, string heading)
     {
         if (!result.Success || result.Data == null)
         {
@@ -144,6 +135,9 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
 
         Menu.PrintPrompt(heading);
         TaskPrinter.Print(result.Data);
+
+        var currentTasks = result.Data.ToList();
+        _taskService.StoreCurrentTasksList(currentTasks);
     }
 
     private static void DisplaySingleTaskResult<T>(Result<T> result, string heading)
@@ -156,5 +150,20 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
 
         Menu.PrintPrompt(heading);
         Console.WriteLine(result.Data);
+    }
+
+    private Result<ToDoItem> GetCurrentTask()
+    {
+        var currentDisplayedTasksResult = _taskService.GetCurrentTasks();
+        if (!currentDisplayedTasksResult.Success || currentDisplayedTasksResult.Data == null)
+        {
+            Menu.PrintPrompt(currentDisplayedTasksResult.ErrorMessage ?? ErrorMessages.ErrorOccurred);
+        }
+
+        var currentDisplayedTasks = currentDisplayedTasksResult.Data!;
+        int index = GetValidIndexWithRetry(currentDisplayedTasks);
+        var currentTask = currentDisplayedTasks[index - 1];
+
+        return Result<ToDoItem>.Ok(currentTask);
     }
 }
