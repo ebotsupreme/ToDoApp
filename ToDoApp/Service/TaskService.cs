@@ -1,9 +1,7 @@
-﻿using System.Threading.Tasks;
-using ToDoApp.Model;
+﻿using ToDoApp.Model;
 using ToDoApp.Shared;
 using ToDoApp.Shared.Interfaces;
 using ToDoApp.Utils;
-using ToDoApp.View;
 
 namespace ToDoApp.Service;
 

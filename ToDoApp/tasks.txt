@@ -1,6 +1,0 @@
-True|drink shake
-True|wash and dry dishes
-True|Study stucty today!!
-True|Drink water not coke
-True|Go to doc appt. at 10:30am
-False|Drink lots of water
