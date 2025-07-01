@@ -13,6 +13,7 @@ public class TaskServiceTests
     private readonly Mock<ITaskRepository> _mockTaskRepository = new();
 
     private const string ExpectedDescription = "Take out trash.";
+    private const string UpdatedDescription = "Drink more water.";
 
     [Fact]
     public void AddNewTask_ShouldReturnSuccess_WhenDescriptionIsValid()
@@ -142,5 +143,67 @@ public class TaskServiceTests
         // Assert
         Assert.False(result.Success);
         Assert.StartsWith(ErrorMessages.RepositoryDeleteErrorFormat.Split('{')[0], result.ErrorMessage);
+    }
+
+    [Fact]
+    public void UpdateExistingTask_ShouldSucceed_WhenTaskIsUpdated()
+    {
+        // Arrange
+        var task = new ToDoItem(Guid.NewGuid(), ExpectedDescription);
+
+        _mockTaskRepository.Setup(repo => repo.GetAllTasks())
+            .Returns([]);
+
+        _mockTaskRepository.Setup(repo => repo.UpdateTask(It.Is<ToDoItem>(t => t.Id == task.Id), UpdatedDescription))
+            .Returns((ToDoItem t, string newDesc) =>
+            {
+                t.Description = newDesc;
+                return Result<ToDoItem>.Ok(t);
+            });
+
+        // Act
+        var service = new TaskService(_mockTaskRepository.Object);
+        var result = service.UpdateExistingTask(task, UpdatedDescription);
+
+        // Assert
+        Assert.True(result.Success);
+        Assert.NotNull(result.Data!);
+        Assert.Equal(UpdatedDescription, result.Data!.Description);
+    }
+
+    [Fact]
+    public void UpdateExistingTask_ShouldFail_WhenDescriptionIsEmpty()
+    {
+        // Arrange
+        // No setup needed.
+
+        // Act
+        var service = new TaskService(_mockTaskRepository.Object);
+        var result = service.AddNewTask("");
+
+        // Assert
+        Assert.False(result.Success);
+        Assert.Null(result.Data);
+        Assert.Equal(ErrorMessages.EmptyDescription, result.ErrorMessage);
+    }
+
+    [Fact]
+    public void UpdateExistingTask_ShouldFail_WhenDescriptionIsDuplicate()
+    {
+        // Arrange
+        var task = new ToDoItem(Guid.NewGuid(), ExpectedDescription);
+        var existingTask = new ToDoItem(Guid.NewGuid(), UpdatedDescription);
+
+        _mockTaskRepository.Setup(repo => repo.GetAllTasks())
+            .Returns([existingTask]);
+
+        // Act
+        var service = new TaskService(_mockTaskRepository.Object);
+        var result = service.UpdateExistingTask(task, UpdatedDescription);
+
+        // Assert
+        Assert.False(result.Success);
+        Assert.Null(result.Data);
+        Assert.Equal(ErrorMessages.DuplicateDescription, result.ErrorMessage);
     }
 }
