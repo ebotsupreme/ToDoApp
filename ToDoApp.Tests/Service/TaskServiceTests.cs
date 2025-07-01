@@ -66,4 +66,43 @@ public class TaskServiceTests
         Assert.Null(result.Data);
         Assert.Equal(ErrorMessages.DuplicateDescription, result.ErrorMessage);
     }
+
+    [Fact]
+    public void CompleteExistingTask_ShouldReturnSuccess_WhenTaskIsNotDone()
+    {
+        // Arrange
+        var task = new ToDoItem(Guid.NewGuid(), ExpectedDescription);
+
+        _mockTaskRepository.Setup(repo => repo.MarkTaskAsDone(task))
+            .Returns(() =>
+            {
+                task.IsDone = true;
+                return Result<ToDoItem>.Ok(task);
+            });
+          
+        // Act
+        var service = new TaskService(_mockTaskRepository.Object);
+        var result = service.CompleteExistingTask(task);
+        
+        // Assert
+        Assert.True(result.Success);
+        Assert.NotNull(result.Data!);
+        Assert.True(result.Data!.IsDone);
+    }
+
+    [Fact]
+    public void CompleteExistingTask_ShouldFail_WhenTaskIsDone()
+    {
+        // Arrange
+        var task = new ToDoItem(Guid.NewGuid(), ExpectedDescription) { IsDone = true };
+
+        // Act
+        var service = new TaskService(_mockTaskRepository.Object);
+        var result = service.CompleteExistingTask(task);
+
+        // Assert
+        Assert.False(result.Success);
+        Assert.Null(result.Data);
+        Assert.StartsWith(ErrorMessages.TaskAlreadyDone, result.ErrorMessage);
+    }
 }
