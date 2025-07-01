@@ -129,7 +129,7 @@ public class TaskService(ITaskRepository repository) : ITaskService
     public Result<IReadOnlyList<ToDoItem>> GetCurrentTasks()
     {
         var currentTasks = _repository.GetCurrentTasks();
-
+        
         if (currentTasks.Count == 0)
         {
             // TODO: log here

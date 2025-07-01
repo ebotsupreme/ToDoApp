@@ -1,0 +1,5 @@
+87c5ed5c-f301-4228-a811-c05d57a5e799|True|drink coffee.
+bba82068-131a-4a37-b9b8-ef05a910d74e|True|pack up things to take home.
+b4ae7b08-2bed-4cac-9754-9ff93bc6e561|True|Drink more water for hangover
+dc4418e0-9dec-49b5-a1d8-2fad07405dae|False|See dr. chan
+5a1ab7a5-d0f4-4447-8504-4f31a9b7ff47|False|Drink shake.

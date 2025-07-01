@@ -8,6 +8,7 @@ namespace ToDoApp.Controller;
 
 public class TaskController(ITaskRepository taskRepository, ITaskService taskService)
 {
+    // TODO not sure if taskRepository is needed for ids yet, currently unused.
     private readonly ITaskRepository taskRepository = taskRepository;
     private readonly ITaskService _taskService = taskService;
 
@@ -85,7 +86,6 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
             return;
         }
 
-
         Menu.PrintUpdateTaskDescriptionPrompt(currentTask.Data.Description);
 
         string input = Menu.UserInput();
@@ -155,14 +155,15 @@ public class TaskController(ITaskRepository taskRepository, ITaskService taskSer
     private Result<ToDoItem> GetCurrentTask()
     {
         var currentDisplayedTasksResult = _taskService.GetCurrentTasks();
+        
         if (!currentDisplayedTasksResult.Success || currentDisplayedTasksResult.Data == null)
         {
-            Menu.PrintPrompt(currentDisplayedTasksResult.ErrorMessage ?? ErrorMessages.ErrorOccurred);
+            return Result<ToDoItem>.Fail(currentDisplayedTasksResult.ErrorMessage ?? ErrorMessages.ErrorOccurred);
         }
 
         var currentDisplayedTasks = currentDisplayedTasksResult.Data!;
         int index = GetValidIndexWithRetry(currentDisplayedTasks);
-        var currentTask = currentDisplayedTasks[index - 1];
+        var currentTask = currentDisplayedTasks[index];
 
         return Result<ToDoItem>.Ok(currentTask);
     }
