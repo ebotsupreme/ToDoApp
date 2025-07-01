@@ -105,4 +105,42 @@ public class TaskServiceTests
         Assert.Null(result.Data);
         Assert.StartsWith(ErrorMessages.TaskAlreadyDone, result.ErrorMessage);
     }
+
+    [Fact]
+    public void DeleteExistingTask_ShouldReturnSuccess_WhenTaskIsDeleted()
+    {
+        // Arrange
+        var task = new ToDoItem(Guid.NewGuid(), ExpectedDescription);
+
+        _mockTaskRepository.Setup(repo => repo.DeleteTask(task))
+            .Returns(Result<Unit>.Ok(Unit.Value));
+
+        // Act
+        var service = new TaskService(_mockTaskRepository.Object);
+        var result = service.DeleteExistingTask(task);
+
+        // Assert
+        Assert.True(result.Success);
+        Assert.NotNull(result);
+        Assert.Equal(Unit.Value, result.Data);
+    }
+
+    [Fact]
+    public void DeleteExistingTask_ShouldFail_WhenRepositoryThrows()
+    {
+        // Arrange
+        var task = new ToDoItem(Guid.NewGuid(), ExpectedDescription);
+        var errorMessage = string.Format(ErrorMessages.RepositoryDeleteErrorFormat, task.Id);
+
+        _mockTaskRepository.Setup(repo => repo.DeleteTask(task))
+            .Returns(Result<Unit>.Fail(errorMessage));
+
+        // Act
+        var service = new TaskService(_mockTaskRepository.Object);
+        var result = service.DeleteExistingTask(task);
+
+        // Assert
+        Assert.False(result.Success);
+        Assert.StartsWith(ErrorMessages.RepositoryDeleteErrorFormat.Split('{')[0], result.ErrorMessage);
+    }
 }
