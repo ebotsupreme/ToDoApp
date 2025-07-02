@@ -206,4 +206,43 @@ public class TaskServiceTests
         Assert.Null(result.Data);
         Assert.Equal(ErrorMessages.DuplicateDescription, result.ErrorMessage);
     }
+
+    [Fact]
+    public void GetAllExistingTasks_ShouldSucceed_WhenTasksExist()
+    {
+        // Arrange
+        var task1 = new ToDoItem(Guid.NewGuid(), ExpectedDescription);
+        var task2 = new ToDoItem(Guid.NewGuid(), UpdatedDescription);
+
+        _mockTaskRepository.Setup(repo => repo.GetAllTasks())
+            .Returns([task1, task2]);
+
+        // Act
+        var service = new TaskService(_mockTaskRepository.Object);
+        var result = service.GetAllExistingTasks();
+        var tasks = result.Data!.ToList();
+
+        // Assert
+        Assert.True(result.Success);
+        Assert.Equal(2, tasks.Count);
+        Assert.Contains(tasks, t =>  t.Description == ExpectedDescription);
+        Assert.Contains(tasks, t =>  t.Description == UpdatedDescription);
+    }
+
+    [Fact]
+    public void GetAllExistingTasks_ShouldFail_WhenTasksAreEmpty()
+    {
+        // Arrange
+        _mockTaskRepository.Setup(repo => repo.GetAllTasks())
+            .Returns([]);
+
+        // Act
+        var service = new TaskService(_mockTaskRepository.Object);
+        var result = service.GetAllExistingTasks();
+
+        // Assert
+        Assert.False(result.Success);
+        Assert.Null(result.Data);
+        Assert.Equal(ErrorMessages.NoTasks, result.ErrorMessage);
+    }
 }
