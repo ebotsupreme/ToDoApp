@@ -230,7 +230,7 @@ public class TaskServiceTests
     }
 
     [Fact]
-    public void GetAllExistingTasks_ShouldFail_WhenTasksAreEmpty()
+    public void GetAllExistingTasks_ShouldFail_WhenNoTasksExis()
     {
         // Arrange
         _mockTaskRepository.Setup(repo => repo.GetAllTasks())
@@ -244,5 +244,81 @@ public class TaskServiceTests
         Assert.False(result.Success);
         Assert.Null(result.Data);
         Assert.Equal(ErrorMessages.NoTasks, result.ErrorMessage);
+    }
+
+    [Fact]
+    public void GetIncompleteTasks_ShouldSucceed_WhenTasksExist()
+    {
+        // Arrange
+        var task1 = new ToDoItem(Guid.NewGuid(), ExpectedDescription) { IsDone = false };
+        var task2 = new ToDoItem(Guid.NewGuid(), UpdatedDescription) { IsDone = false };
+        _mockTaskRepository.Setup(repo => repo.GetIncompleteTasks())
+            .Returns([task1, task2]);
+
+        // Act
+        var service = new TaskService(_mockTaskRepository.Object);
+        var result = service.GetAllIncompleteTasks();
+        var tasks = result.Data!.ToList();
+
+        // Assert
+        Assert.True(result.Success);
+        Assert.Equal(2, tasks.Count);
+        Assert.Contains(tasks, t => t.Description == ExpectedDescription);
+        Assert.Contains(tasks, t => t.Description == UpdatedDescription);
+        Assert.All(tasks, t => Assert.False(t.IsDone));
+        Assert.All(tasks, t => Assert.False(t.IsDone));
+    }
+
+    [Fact]
+    public void GetIncompleteTasks_ShouldFail_WhenNoTasksExist()
+    {
+        // Arrange
+        _mockTaskRepository.Setup(repo => repo.GetIncompleteTasks())
+            .Returns([]);
+
+        // Act
+        var service = new TaskService(_mockTaskRepository.Object);
+        var result = service.GetAllIncompleteTasks();
+
+        // Assert
+        Assert.False(result.Success);
+        Assert.Null(result.Data);
+        Assert.Equal(ErrorMessages.NoIncompleteTasks, result.ErrorMessage);
+    }
+
+    [Fact]
+    public void GetAllCompletedTasks_ShouldSucceed_WhenTasksExist()
+    {
+        // Arrange
+        var task1 = new ToDoItem(Guid.NewGuid(), ExpectedDescription) { IsDone = true };
+        var task2 = new ToDoItem(Guid.NewGuid(), UpdatedDescription) { IsDone = true };
+        _mockTaskRepository.Setup(repo => repo.GetCompletedTasks())
+            .Returns([task1, task2]);
+
+        // Act
+        var service = new TaskService(_mockTaskRepository.Object);
+        var result = service.GetAllCompletedTasks();
+        var tasks = result.Data!.ToList();
+
+        // Assert
+        Assert.True(result.Success);
+        Assert.All(tasks, t => Assert.True(t.IsDone));
+    }   
+
+    [Fact]
+    public void GetAllCompletedTasks_ShouldFail_WhenNoTasksExist()
+    {
+        // Arrange
+        _mockTaskRepository.Setup(repo => repo.GetCompletedTasks())
+            .Returns([]);
+
+        // Act
+        var service = new TaskService(_mockTaskRepository.Object);
+        var result = service.GetAllCompletedTasks();
+
+        // Assert
+        Assert.False(result.Success);
+        Assert.Null(result.Data);
+        Assert.Equal(ErrorMessages.NoCompletedTasks, result.ErrorMessage);
     }
 }
