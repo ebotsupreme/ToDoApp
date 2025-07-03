@@ -1,6 +1,5 @@
 ﻿
 using ToDoApp.Shared.Interfaces;
-using Xunit;
 using Moq;
 using ToDoApp.Model;
 using ToDoApp.Shared;

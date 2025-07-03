@@ -6,10 +6,9 @@ using ToDoApp.Shared;
 
 namespace ToDoApp.Controller;
 
-public class TaskController(ITaskRepository taskRepository, ITaskService taskService)
+public class TaskController(ITaskService taskService)
 {
     // TODO not sure if taskRepository is needed for ids yet, currently unused.
-    private readonly ITaskRepository taskRepository = taskRepository;
     private readonly ITaskService _taskService = taskService;
 
     public void ViewAllTasks()

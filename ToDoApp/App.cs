@@ -11,7 +11,7 @@ class App
         bool running = true;
         TaskRepository taskRepository = new(AppConfig.FilePath);
         TaskService taskService = new(taskRepository);
-        TaskController taskController = new(taskRepository, taskService);
+        TaskController taskController = new(taskService);
 
         while (running)
         {
