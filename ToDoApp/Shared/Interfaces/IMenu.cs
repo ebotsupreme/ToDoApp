@@ -6,5 +6,6 @@ public interface IMenu
     string UserInput();
     void ShowOutOfRangeMessage(int maxTaskNumber);
     void PrintUpdateTaskDescriptionPrompt(string currentDescription);
+    void PrintInfoForTasks(int index, string status, string description);
 }
 

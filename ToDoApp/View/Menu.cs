@@ -65,7 +65,7 @@ public class Menu : IMenu
         Console.WriteLine(string.Format(ErrorMessages.SavingErrorFormat, typeName, message));
     }
     
-    public static void PrintInfoForTasks(int index, string status, string description)
+    public void PrintInfoForTasks(int index, string status, string description)
     {
         Console.WriteLine($"{index}. {status} {description}");
 

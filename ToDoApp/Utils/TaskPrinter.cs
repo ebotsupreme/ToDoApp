@@ -1,18 +1,18 @@
 using ToDoApp.Model;
-using ToDoApp.View;
+using ToDoApp.Shared.Interfaces;
 
 namespace ToDoApp.Utils;
 
-public static class TaskPrinter
+public class TaskPrinter(IMenu menu)
 {
-    public static void Print(IEnumerable<ToDoItem> tasks)
+    public void Print(IEnumerable<ToDoItem> tasks)
     {
         int i = 0;
 
         foreach (var task in tasks)
         {
             string status = task.IsDone ? "[X]" : "[ ]";
-            Menu.PrintInfoForTasks(++i, status, task.Description);
+            menu.PrintInfoForTasks(++i, status, task.Description);
         }
     }
 }

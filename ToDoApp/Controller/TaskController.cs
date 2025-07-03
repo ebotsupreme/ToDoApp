@@ -9,6 +9,7 @@ public class TaskController(ITaskService taskService, IMenu menu)
 {
     // TODO not sure if taskRepository is needed for ids yet, currently unused.
     private readonly ITaskService _taskService = taskService;
+    private readonly TaskPrinter _printer = new(menu);
 
     public void ViewAllTasks()
     {
@@ -132,7 +133,7 @@ public class TaskController(ITaskService taskService, IMenu menu)
         }
 
         menu.PrintPrompt(heading);
-        TaskPrinter.Print(result.Data);
+        _printer.Print(result.Data);
 
         var currentTasks = result.Data.ToList();
         _taskService.StoreCurrentTasksList(currentTasks);
