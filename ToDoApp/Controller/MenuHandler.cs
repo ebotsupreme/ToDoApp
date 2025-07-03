@@ -1,9 +1,10 @@
 using ToDoApp.Controller;
+using ToDoApp.Shared.Interfaces;
 using ToDoApp.View;
 
 class MenuHandler
 {
-    public static void HandleMenuSelection(string input, ref bool running, TaskController taskController)
+    public static void HandleMenuSelection(string input, ref bool running, TaskController taskController, IMenu menu)
     {
         switch (input)
         {
@@ -29,11 +30,11 @@ class MenuHandler
                 taskController.EditTask();
                 break;
             case "8":
-                Menu.PrintPrompt("Exiting To-Do App...");
+                menu.PrintPrompt("Exiting To-Do App...");
                 running = false;
                 break;
             default:
-                Menu.PrintPrompt("Invalid option. Please try again.");
+                menu.PrintPrompt("Invalid option. Please try again.");
                 break;
         }
     }

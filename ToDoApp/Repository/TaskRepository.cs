@@ -10,6 +10,7 @@ public class TaskRepository : ITaskRepository
 {
     private readonly List<ToDoItem> tasks = [];
     private readonly List<ToDoItem> currentTasks = [];
+    private readonly IMenu menu = new Menu();
     private readonly string filePath;
 
     public TaskRepository(string path)
@@ -96,7 +97,7 @@ public class TaskRepository : ITaskRepository
         {
             if (!File.Exists(path))
             {
-                Menu.PrintPrompt("No saved tasks found - starting fresh.");
+                menu.PrintPrompt("No saved tasks found - starting fresh.");
                 return;
             }
 
@@ -110,7 +111,7 @@ public class TaskRepository : ITaskRepository
                 {
                     if (!Guid.TryParse(parts[0], out Guid id))
                     {
-                        Menu.PrintPrompt($"Invalid GUID format in task data: {parts[0]} - skipping this entry.");
+                        menu.PrintPrompt($"Invalid GUID format in task data: {parts[0]} - skipping this entry.");
                         continue;
                     }    
                     bool isDone = parts[1].Equals("true", StringComparison.OrdinalIgnoreCase);

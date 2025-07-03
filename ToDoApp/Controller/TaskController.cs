@@ -1,4 +1,3 @@
-using ToDoApp.View;
 using ToDoApp.Shared.Interfaces;
 using ToDoApp.Utils;
 using ToDoApp.Model;
@@ -6,7 +5,7 @@ using ToDoApp.Shared;
 
 namespace ToDoApp.Controller;
 
-public class TaskController(ITaskService taskService)
+public class TaskController(ITaskService taskService, IMenu menu)
 {
     // TODO not sure if taskRepository is needed for ids yet, currently unused.
     private readonly ITaskService _taskService = taskService;
@@ -31,12 +30,12 @@ public class TaskController(ITaskService taskService)
 
     public void AddTask()
     {
-        Menu.PrintPrompt("Enter a new task");
+        menu.PrintPrompt("Enter a new task");
 
-        string input = Menu.UserInput();
+        string input = menu.UserInput();
         if (!InputValidator.IsInputValid(input))
         {
-            Menu.PrintPrompt(ErrorMessages.EmptyTask);
+            menu.PrintPrompt(ErrorMessages.EmptyTask);
             return;
         }
 
@@ -46,12 +45,12 @@ public class TaskController(ITaskService taskService)
 
     public void CompleteTask()
     {
-        Menu.PrintPrompt("Enter the number of the task to mark as done:");
+        menu.PrintPrompt("Enter the number of the task to mark as done:");
 
         var currentTask = GetCurrentTask();
         if (!currentTask.Success || currentTask.Data == null)
         {
-            Menu.PrintPrompt(currentTask.ErrorMessage ?? ErrorMessages.ErrorOccurred);
+            menu.PrintPrompt(currentTask.ErrorMessage ?? ErrorMessages.ErrorOccurred);
             return;
         }
 
@@ -61,12 +60,12 @@ public class TaskController(ITaskService taskService)
 
     public void RemoveTask()
     {
-        Menu.PrintPrompt("Enter the number of the task to delete:");
+        menu.PrintPrompt("Enter the number of the task to delete:");
 
         var currentTask = GetCurrentTask();
         if (!currentTask.Success || currentTask.Data == null)
         {
-            Menu.PrintPrompt(currentTask.ErrorMessage ?? ErrorMessages.ErrorOccurred);
+            menu.PrintPrompt(currentTask.ErrorMessage ?? ErrorMessages.ErrorOccurred);
             return;
         }
 
@@ -76,21 +75,21 @@ public class TaskController(ITaskService taskService)
 
     public void EditTask()
     {
-        Menu.PrintPrompt("Enter the number of the task you want to edit:");
+        menu.PrintPrompt("Enter the number of the task you want to edit:");
 
         var currentTask = GetCurrentTask();
         if (!currentTask.Success || currentTask.Data == null)
         {
-            Menu.PrintPrompt(currentTask.ErrorMessage ?? ErrorMessages.ErrorOccurred);
+            menu.PrintPrompt(currentTask.ErrorMessage ?? ErrorMessages.ErrorOccurred);
             return;
         }
 
-        Menu.PrintUpdateTaskDescriptionPrompt(currentTask.Data.Description);
+        menu.PrintUpdateTaskDescriptionPrompt(currentTask.Data.Description);
 
-        string input = Menu.UserInput();
+        string input = menu.UserInput();
         if (!InputValidator.IsInputValid(input))
         {
-            Menu.PrintPrompt(ErrorMessages.EmptyDescription);
+            menu.PrintPrompt(ErrorMessages.EmptyDescription);
             return;
         }
 
@@ -98,16 +97,16 @@ public class TaskController(ITaskService taskService)
         DisplaySingleTaskResult(result, "Task updated.");
     }
     
-    public static int GetValidIndexWithRetry(IReadOnlyList<ToDoItem> currentDisplayedTasks)
+    public int GetValidIndexWithRetry(IReadOnlyList<ToDoItem> currentDisplayedTasks)
     {
         while (true)
         {
-            string input = Menu.UserInput();
+            string input = menu.UserInput();
             bool success = int.TryParse(input, out int index);
 
             if (!success)
             {
-                Menu.PrintPrompt(ErrorMessages.NotANumber);
+                menu.PrintPrompt(ErrorMessages.NotANumber);
                 continue;
             }
 
@@ -116,7 +115,7 @@ public class TaskController(ITaskService taskService)
             if (index < 0 || index >= currentDisplayedTasks.Count)
             {
                 int maxTasks = currentDisplayedTasks.Count;
-                Menu.ShowOutOfRangeMessage(maxTasks);
+                menu.ShowOutOfRangeMessage(maxTasks);
                 continue;
             }
 
@@ -128,26 +127,26 @@ public class TaskController(ITaskService taskService)
     {
         if (!result.Success || result.Data == null)
         {
-            Menu.PrintPrompt(result.ErrorMessage ?? ErrorMessages.ErrorOccurred);
+            menu.PrintPrompt(result.ErrorMessage ?? ErrorMessages.ErrorOccurred);
             return;
         }
 
-        Menu.PrintPrompt(heading);
+        menu.PrintPrompt(heading);
         TaskPrinter.Print(result.Data);
 
         var currentTasks = result.Data.ToList();
         _taskService.StoreCurrentTasksList(currentTasks);
     }
 
-    private static void DisplaySingleTaskResult<T>(Result<T> result, string heading)
+    private void DisplaySingleTaskResult<T>(Result<T> result, string heading)
     {
         if (!result.Success || result.Data == null)
         {
-            Menu.PrintPrompt(result.ErrorMessage ?? ErrorMessages.ErrorOccurred);
+            menu.PrintPrompt(result.ErrorMessage ?? ErrorMessages.ErrorOccurred);
             return;
         }
 
-        Menu.PrintPrompt(heading);
+        menu.PrintPrompt(heading);
         Console.WriteLine(result.Data);
     }
 

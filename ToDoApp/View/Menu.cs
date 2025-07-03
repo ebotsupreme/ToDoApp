@@ -1,8 +1,9 @@
 using ToDoApp.Shared;
+using ToDoApp.Shared.Interfaces;
 
 namespace ToDoApp.View;
 
-public static class Menu
+public class Menu : IMenu
 {
     public static void Show()
     {
@@ -19,24 +20,24 @@ public static class Menu
         Console.Write("> ");
     }
 
-    public static string UserInput()
+    public string UserInput()
     {
         return Console.ReadLine() ?? "";
     }
 
-    public static void PrintPrompt(string prompt)
+    public void PrintPrompt(string prompt)
     {
         Console.WriteLine();
         Console.WriteLine(prompt);
     }
 
-    public static void ShowOutOfRangeMessage(int maxTaskNumber)
+    public void ShowOutOfRangeMessage(int maxTaskNumber)
     {
         Console.WriteLine();
         Console.WriteLine(string.Format(ErrorMessages.TaskOutOfRangeFormat, maxTaskNumber));
     }
 
-    public static void PrintUpdateTaskDescriptionPrompt(string currentTaskDescription)
+    public void PrintUpdateTaskDescriptionPrompt(string currentTaskDescription)
     {
         Console.WriteLine();
         Console.WriteLine("Current task description: " + currentTaskDescription);

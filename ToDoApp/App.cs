@@ -3,6 +3,7 @@ using ToDoApp.Controller;
 using ToDoApp.View;
 using ToDoApp.Repository;
 using ToDoApp.Service;
+using ToDoApp.Shared.Interfaces;
 
 class App
 {
@@ -11,13 +12,14 @@ class App
         bool running = true;
         TaskRepository taskRepository = new(AppConfig.FilePath);
         TaskService taskService = new(taskRepository);
-        TaskController taskController = new(taskService);
+        IMenu menu = new Menu();
+        TaskController taskController = new(taskService, menu);
 
         while (running)
         {
             Menu.Show();
-            string input = Menu.UserInput();
-            MenuHandler.HandleMenuSelection(input, ref running, taskController);
+            string input = menu.UserInput();
+            MenuHandler.HandleMenuSelection(input, ref running, taskController, menu);
         }
     }
 }
