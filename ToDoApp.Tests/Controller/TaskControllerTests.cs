@@ -4,44 +4,35 @@ using ToDoApp.Controller;
 using ToDoApp.Model;
 using ToDoApp.Shared;
 using ToDoApp.Shared.Interfaces;
+using ToDoApp.Tests.Controller.Base;
 
 namespace ToDoApp.Tests.Controller;
-public class TaskControllerTests
+public class TaskControllerTests : BaseTaskControllerTests
 {
-    private readonly Mock<ITaskService> _mockTaskService = new();
-    private readonly Mock<IMenu> _mockMenu = new();
-    private readonly TaskController _taskController;
-
-    public TaskControllerTests()
-    {
-        _taskController = new TaskController(_mockTaskService.Object, _mockMenu.Object);
-    }
-
     [Fact]
     public void ViewAllTasks_ShouldSucceed_WhenTasksExist()
     {
         // Arrange
-        var task1 = new ToDoItem(Guid.NewGuid(), TestConstants.ExpectedDescription) { IsDone = false };
-        var task2 = new ToDoItem(Guid.NewGuid(), TestConstants.UpdatedDescription) { IsDone = false };
-        List<ToDoItem> tasks = [task1, task2];
+        var incompleteTasks = CreateTestTask(TestConstants.ExpectedDescription, false);
+        var completeTasks = CreateTestTask(TestConstants.UpdatedDescription, true);
+        var allTasks = incompleteTasks.Concat(completeTasks).ToList();
         _mockTaskService.Setup(service => service.GetAllExistingTasks())
-            .Returns(Result<IReadOnlyList<ToDoItem>>.Ok(tasks));
+            .Returns(Result<IReadOnlyList<ToDoItem>>.Ok(allTasks));
 
         // Act
         _taskController.ViewAllTasks();
 
         // Assert
-        _mockMenu.Verify(menu => menu.PrintPrompt(PromtsAndMessages.YourTasks), Times.Once());
-        _mockTaskService.Verify(service => service.StoreCurrentTasksList(It.Is<List<ToDoItem>>(list => list.Count == 2)), Times.Once());
-        _mockMenu.Verify(menu => menu.PrintInfoForTasks(1, "[ ]", TestConstants.ExpectedDescription), Times.Once());
-        _mockMenu.Verify(menu => menu.PrintInfoForTasks(2, "[ ]", TestConstants.UpdatedDescription), Times.Once());
+        VerifyMenuPrompt(PromtsAndMessages.YourTasks);
+        VerifyStoreCurrentTasksList(2);
+        VerifyMenuPrintInfoForTasks(1, "[ ]", TestConstants.ExpectedDescription);
+        VerifyMenuPrintInfoForTasks(2, "[X]", TestConstants.UpdatedDescription);
     }
 
     [Fact]
     public void ViewAllTasks_ShouldFail_WhenNoTasksExist()
     {
         // Arrange
-        List<ToDoItem> tasks = [];
         _mockTaskService.Setup(service => service.GetAllExistingTasks())
             .Returns(Result<IReadOnlyList<ToDoItem>>.Fail(ErrorMessages.NoTasks));
 
@@ -49,7 +40,77 @@ public class TaskControllerTests
         _taskController.ViewAllTasks();
 
         // Assert
-        _mockMenu.Verify(menu => menu.PrintPrompt(ErrorMessages.NoTasks), Times.Once());
-        _mockTaskService.Verify(service => service.StoreCurrentTasksList(It.IsAny<List<ToDoItem>>()), Times.Never());
+        VerifyMenuPrompt(ErrorMessages.NoTasks);
+        VerifyStoreCurrentTasksListNeverCalled();
+    }
+
+    [Fact]
+    public void ViewInCompleteTasks_ShouldSucceed_When_IncompleteTasksExists()
+    {
+        // Arrange
+        var incompleteTask1 = CreateTestTask(TestConstants.ExpectedDescription);
+        var incompleteTask2 = CreateTestTask(TestConstants.UpdatedDescription);
+        var incompleteTasks = incompleteTask1.Concat(incompleteTask2).ToList();
+        _mockTaskService.Setup(service => service.GetAllIncompleteTasks())
+            .Returns(Result<IReadOnlyList<ToDoItem>>.Ok(incompleteTasks));
+
+        // Act
+        _taskController.ViewIncompleteTasks();
+
+        // Assert
+        VerifyMenuPrompt(PromtsAndMessages.YourIncompleteTasks);
+        VerifyStoreCurrentTasksList(2);
+        VerifyMenuPrintInfoForTasks(1, "[ ]", TestConstants.ExpectedDescription);
+        VerifyMenuPrintInfoForTasks(2, "[ ]", TestConstants.UpdatedDescription);
+    }
+
+    [Fact]
+    public void ViewIncompleteTasks_ShouldFail_WhenNoIncompleteTasksExist()
+    {
+        // Arrange
+        _mockTaskService.Setup(service => service.GetAllIncompleteTasks())
+            .Returns(Result<IReadOnlyList<ToDoItem>>.Fail(ErrorMessages.NoIncompleteTasks));
+
+        // Act
+        _taskController.ViewIncompleteTasks();
+
+        // Assert
+        VerifyMenuPrompt(ErrorMessages.NoIncompleteTasks);
+        VerifyStoreCurrentTasksListNeverCalled();
+    }
+
+    [Fact]
+    public void ViewCompletedTasks_ShouldSucceed_WhenTasksExist()
+    {
+        // Arrange
+        var completeTask1 = CreateTestTask(TestConstants.ExpectedDescription, true);
+        var completeTask2 = CreateTestTask(TestConstants.UpdatedDescription, true);
+        var completeTasks = completeTask1.Concat(completeTask2).ToList();
+        _mockTaskService.Setup(service => service.GetAllCompletedTasks())
+            .Returns(Result<IReadOnlyList<ToDoItem>>.Ok(completeTasks));
+
+        // Act
+        _taskController.ViewCompletedTasks();
+
+        // Assert
+        VerifyMenuPrompt(PromtsAndMessages.YourCompletedTasks);
+        VerifyStoreCurrentTasksList(2);
+        VerifyMenuPrintInfoForTasks(1, "[X]", TestConstants.ExpectedDescription);
+        VerifyMenuPrintInfoForTasks(2, "[X]", TestConstants.UpdatedDescription);
+    }
+
+    [Fact]
+    public void ViewCompletedTasks_ShouldFail_WhenNoTasksExist()
+    {
+        // Arrange
+        _mockTaskService.Setup(service => service.GetAllCompletedTasks())
+            .Returns(Result<IReadOnlyList<ToDoItem>>.Fail(ErrorMessages.NoTasks));
+
+        // Act
+        _taskController.ViewCompletedTasks();
+
+        // Assert
+        VerifyMenuPrompt(ErrorMessages.NoTasks);
+        VerifyStoreCurrentTasksListNeverCalled();
     }
 }
