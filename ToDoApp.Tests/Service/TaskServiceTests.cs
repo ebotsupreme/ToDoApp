@@ -226,7 +226,7 @@ public class TaskServiceTests
     }
 
     [Fact]
-    public void GetAllExistingTasks_ShouldFail_WhenNoTasksExis()
+    public void GetAllExistingTasks_ShouldFail_WhenNoTasksExist()
     {
         // Arrange
         _mockTaskRepository.Setup(repo => repo.GetAllTasks())

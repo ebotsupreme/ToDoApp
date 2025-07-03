@@ -31,11 +31,25 @@ public class TaskControllerTests
         _taskController.ViewAllTasks();
 
         // Assert
-        _mockMenu.Verify(m => m.PrintPrompt(PromtsAndMessages.YourTasks), Times.Once());
-        _mockTaskService.Verify(s => s.StoreCurrentTasksList(It.Is<List<ToDoItem>>(list => list.Count == 2)), Times.Once());
-        _mockMenu.Verify(m => m.PrintInfoForTasks(1, "[ ]", TestConstants.ExpectedDescription), Times.Once());
-        _mockMenu.Verify(m => m.PrintInfoForTasks(2, "[ ]", TestConstants.UpdatedDescription), Times.Once());
+        _mockMenu.Verify(menu => menu.PrintPrompt(PromtsAndMessages.YourTasks), Times.Once());
+        _mockTaskService.Verify(service => service.StoreCurrentTasksList(It.Is<List<ToDoItem>>(list => list.Count == 2)), Times.Once());
+        _mockMenu.Verify(menu => menu.PrintInfoForTasks(1, "[ ]", TestConstants.ExpectedDescription), Times.Once());
+        _mockMenu.Verify(menu => menu.PrintInfoForTasks(2, "[ ]", TestConstants.UpdatedDescription), Times.Once());
     }
 
+    [Fact]
+    public void ViewAllTasks_ShouldFail_WhenNoTasksExist()
+    {
+        // Arrange
+        List<ToDoItem> tasks = [];
+        _mockTaskService.Setup(service => service.GetAllExistingTasks())
+            .Returns(Result<IReadOnlyList<ToDoItem>>.Fail(ErrorMessages.NoTasks));
 
+        // Act
+        _taskController.ViewAllTasks();
+
+        // Assert
+        _mockMenu.Verify(menu => menu.PrintPrompt(ErrorMessages.NoTasks), Times.Once());
+        _mockTaskService.Verify(service => service.StoreCurrentTasksList(It.IsAny<List<ToDoItem>>()), Times.Never());
+    }
 }
