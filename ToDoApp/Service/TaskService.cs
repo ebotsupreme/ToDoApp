@@ -1,9 +1,7 @@
-﻿using System.Threading.Tasks;
-using ToDoApp.Model;
+﻿using ToDoApp.Model;
 using ToDoApp.Shared;
 using ToDoApp.Shared.Interfaces;
 using ToDoApp.Utils;
-using ToDoApp.View;
 
 namespace ToDoApp.Service;
 
@@ -116,7 +114,7 @@ public class TaskService(ITaskRepository repository) : ITaskService
         return Result<ToDoItem>.Ok(task);
     }
 
-    public void StoreCurrentTasksList(List<ToDoItem> currentTaskList)
+    public void StoreCurrentTasksList(List<ToDoItem>? currentTaskList)
     {
         if (currentTaskList == null || currentTaskList.Count == 0)
         {
@@ -131,7 +129,7 @@ public class TaskService(ITaskRepository repository) : ITaskService
     public Result<IReadOnlyList<ToDoItem>> GetCurrentTasks()
     {
         var currentTasks = _repository.GetCurrentTasks();
-
+        
         if (currentTasks.Count == 0)
         {
             // TODO: log here
