@@ -114,7 +114,7 @@ public class TaskService(ITaskRepository repository) : ITaskService
         return Result<ToDoItem>.Ok(task);
     }
 
-    public void StoreCurrentTasksList(List<ToDoItem> currentTaskList)
+    public void StoreCurrentTasksList(List<ToDoItem>? currentTaskList)
     {
         if (currentTaskList == null || currentTaskList.Count == 0)
         {
