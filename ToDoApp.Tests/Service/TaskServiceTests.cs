@@ -4,31 +4,27 @@ using Moq;
 using ToDoApp.Model;
 using ToDoApp.Shared;
 using ToDoApp.Service;
+using ToDoApp.Tests.Service.Base;
 
 namespace ToDoApp.Tests.Service;
 
-public class TaskServiceTests
+public class TaskServiceTests : BaseTaskServiceTests
 {
-    private readonly Mock<ITaskRepository> _mockTaskRepository = new();
-
     [Fact]
     public void AddNewTask_ShouldReturnSuccess_WhenDescriptionIsValid()
     {
         // Arrange
         _mockTaskRepository.Setup(repo => repo.GetAllTasks())
             .Returns([]);
-
         _mockTaskRepository.Setup(repo => repo.CreateTask(TestConstants.ExpectedDescription))
             .Returns(Result<ToDoItem>.Ok(new ToDoItem(Guid.NewGuid(), TestConstants.ExpectedDescription)));
 
         // Act
-        var service = new TaskService(_mockTaskRepository.Object);
+        var service = CreateTaskService();
         var result = service.AddNewTask(TestConstants.ExpectedDescription);
 
         // Assert
-        Assert.True(result.Success);
-        Assert.NotNull(result.Data!);
-        Assert.Equal(TestConstants.ExpectedDescription, result.Data!.Description);
+        ShouldSucceedWithExpectedDescription(result, TestConstants.ExpectedDescription);
     }
 
     [Fact]
@@ -38,13 +34,11 @@ public class TaskServiceTests
         // no setup needed
 
         // Act
-        var service = new TaskService(_mockTaskRepository.Object);
+        var service = CreateTaskService();
         var result = service.AddNewTask("");
 
         // Assert
-        Assert.False(result.Success);
-        Assert.Null(result.Data);
-        Assert.StartsWith(ErrorMessages.EmptyDescription, result.ErrorMessage);
+        ShouldFailWhenErrorMessagesStartsWith(result, ErrorMessages.EmptyDescription);
     }
 
     [Fact]
@@ -55,20 +49,18 @@ public class TaskServiceTests
             .Returns([new(Guid.NewGuid(), TestConstants.ExpectedDescription)]);
 
         // Act
-        var service = new TaskService(_mockTaskRepository.Object);
+        var service = CreateTaskService();
         var result = service.AddNewTask(TestConstants.ExpectedDescription);
 
         // Assert
-        Assert.False(result.Success);
-        Assert.Null(result.Data);
-        Assert.Equal(ErrorMessages.DuplicateDescription, result.ErrorMessage);
+        ShouldFailWhenErrorMessagesAreEqual(result, ErrorMessages.DuplicateDescription);
     }
 
     [Fact]
     public void CompleteExistingTask_ShouldReturnSuccess_WhenTaskIsNotDone()
     {
         // Arrange
-        var task = new ToDoItem(Guid.NewGuid(), TestConstants.ExpectedDescription);
+        var task = CreateTestTask(TestConstants.ExpectedDescription);
 
         _mockTaskRepository.Setup(repo => repo.MarkTaskAsDone(task))
             .Returns(() =>
@@ -78,7 +70,7 @@ public class TaskServiceTests
             });
           
         // Act
-        var service = new TaskService(_mockTaskRepository.Object);
+        var service = CreateTaskService();
         var result = service.CompleteExistingTask(task);
         
         // Assert
@@ -91,29 +83,26 @@ public class TaskServiceTests
     public void CompleteExistingTask_ShouldFail_WhenTaskIsDone()
     {
         // Arrange
-        var task = new ToDoItem(Guid.NewGuid(), TestConstants.ExpectedDescription) { IsDone = true };
+        var task = CreateTestTask(TestConstants.ExpectedDescription, true);
 
         // Act
-        var service = new TaskService(_mockTaskRepository.Object);
+        var service = CreateTaskService();
         var result = service.CompleteExistingTask(task);
 
         // Assert
-        Assert.False(result.Success);
-        Assert.Null(result.Data);
-        Assert.StartsWith(ErrorMessages.TaskAlreadyDone, result.ErrorMessage);
+        ShouldFailWhenErrorMessagesStartsWith(result, ErrorMessages.TaskAlreadyDone);
     }
 
     [Fact]
     public void DeleteExistingTask_ShouldReturnSuccess_WhenTaskIsDeleted()
     {
         // Arrange
-        var task = new ToDoItem(Guid.NewGuid(), TestConstants.ExpectedDescription);
-
+        var task = CreateTestTask(TestConstants.ExpectedDescription);
         _mockTaskRepository.Setup(repo => repo.DeleteTask(task))
             .Returns(Result<Unit>.Ok(Unit.Value));
 
         // Act
-        var service = new TaskService(_mockTaskRepository.Object);
+        var service = CreateTaskService();
         var result = service.DeleteExistingTask(task);
 
         // Assert
@@ -126,14 +115,13 @@ public class TaskServiceTests
     public void DeleteExistingTask_ShouldFail_WhenRepositoryThrows()
     {
         // Arrange
-        var task = new ToDoItem(Guid.NewGuid(), TestConstants.ExpectedDescription);
+        var task = CreateTestTask(TestConstants.ExpectedDescription); 
         var errorMessage = string.Format(ErrorMessages.RepositoryDeleteErrorFormat, task.Id);
-
         _mockTaskRepository.Setup(repo => repo.DeleteTask(task))
             .Returns(Result<Unit>.Fail(errorMessage));
 
         // Act
-        var service = new TaskService(_mockTaskRepository.Object);
+        var service = CreateTaskService();
         var result = service.DeleteExistingTask(task);
 
         // Assert
@@ -145,11 +133,9 @@ public class TaskServiceTests
     public void UpdateExistingTask_ShouldSucceed_WhenTaskIsUpdated()
     {
         // Arrange
-        var task = new ToDoItem(Guid.NewGuid(), TestConstants.ExpectedDescription);
-
+        var task = CreateTestTask(TestConstants.ExpectedDescription);
         _mockTaskRepository.Setup(repo => repo.GetAllTasks())
             .Returns([]);
-
         _mockTaskRepository.Setup(repo => repo.UpdateTask(It.Is<ToDoItem>(t => t.Id == task.Id), TestConstants.UpdatedDescription))
             .Returns((ToDoItem t, string newDesc) =>
             {
@@ -158,13 +144,11 @@ public class TaskServiceTests
             });
 
         // Act
-        var service = new TaskService(_mockTaskRepository.Object);
+        var service = CreateTaskService();
         var result = service.UpdateExistingTask(task, TestConstants.UpdatedDescription);
 
         // Assert
-        Assert.True(result.Success);
-        Assert.NotNull(result.Data!);
-        Assert.Equal(TestConstants.UpdatedDescription, result.Data!.Description);
+        ShouldSucceedWithExpectedDescription(result, TestConstants.UpdatedDescription);
     }
 
     [Fact]
@@ -174,49 +158,41 @@ public class TaskServiceTests
         // No setup needed.
 
         // Act
-        var service = new TaskService(_mockTaskRepository.Object);
+        var service = CreateTaskService();
         var result = service.AddNewTask("");
 
         // Assert
-        Assert.False(result.Success);
-        Assert.Null(result.Data);
-        Assert.Equal(ErrorMessages.EmptyDescription, result.ErrorMessage);
+        ShouldFailWhenErrorMessagesAreEqual(result, ErrorMessages.EmptyDescription);
     }
 
     [Fact]
     public void UpdateExistingTask_ShouldFail_WhenDescriptionIsDuplicate()
     {
         // Arrange
-        var task = new ToDoItem(Guid.NewGuid(), TestConstants.ExpectedDescription);
-        var existingTask = new ToDoItem(Guid.NewGuid(), TestConstants.UpdatedDescription);
-
+        var task = CreateTestTask(TestConstants.ExpectedDescription);
+        var existingTask = CreateTestTask(TestConstants.UpdatedDescription);
         _mockTaskRepository.Setup(repo => repo.GetAllTasks())
             .Returns([existingTask]);
 
         // Act
-        var service = new TaskService(_mockTaskRepository.Object);
+        var service = CreateTaskService();
         var result = service.UpdateExistingTask(task, TestConstants.UpdatedDescription);
 
         // Assert
-        Assert.False(result.Success);
-        Assert.Null(result.Data);
-        Assert.Equal(ErrorMessages.DuplicateDescription, result.ErrorMessage);
+        ShouldFailWhenErrorMessagesAreEqual(result, ErrorMessages.DuplicateDescription);
     }
 
     [Fact]
     public void GetAllExistingTasks_ShouldSucceed_WhenTasksExist()
     {
         // Arrange
-        var task1 = new ToDoItem(Guid.NewGuid(), TestConstants.ExpectedDescription);
-        var task2 = new ToDoItem(Guid.NewGuid(), TestConstants.UpdatedDescription);
-
+        var tasks = CreateTestTasksIReadOnlyList(TestConstants.ExpectedDescription, TestConstants.UpdatedDescription);
         _mockTaskRepository.Setup(repo => repo.GetAllTasks())
-            .Returns([task1, task2]);
+            .Returns(tasks);
 
         // Act
-        var service = new TaskService(_mockTaskRepository.Object);
+        var service = CreateTaskService();
         var result = service.GetAllExistingTasks();
-        var tasks = result.Data!.ToList();
 
         // Assert
         Assert.True(result.Success);
@@ -233,28 +209,25 @@ public class TaskServiceTests
             .Returns([]);
 
         // Act
-        var service = new TaskService(_mockTaskRepository.Object);
+        var service = CreateTaskService();
         var result = service.GetAllExistingTasks();
 
         // Assert
-        Assert.False(result.Success);
-        Assert.Null(result.Data);
-        Assert.Equal(ErrorMessages.NoTasks, result.ErrorMessage);
+        ShouldFailWhenErrorMessagesAreEqual(result, ErrorMessages.NoTasks);
     }
 
     [Fact]
     public void GetIncompleteTasks_ShouldSucceed_WhenTasksExist()
     {
-        // Arrange
-        var task1 = new ToDoItem(Guid.NewGuid(), TestConstants.ExpectedDescription) { IsDone = false };
-        var task2 = new ToDoItem(Guid.NewGuid(), TestConstants.UpdatedDescription) { IsDone = false };
+        //// Arrange
+        var tasks = CreateTestTasksIReadOnlyList(TestConstants.ExpectedDescription,
+            TestConstants.UpdatedDescription, false, false);
         _mockTaskRepository.Setup(repo => repo.GetIncompleteTasks())
-            .Returns([task1, task2]);
+            .Returns(tasks);
 
         // Act
-        var service = new TaskService(_mockTaskRepository.Object);
+        var service = CreateTaskService();
         var result = service.GetAllIncompleteTasks();
-        var tasks = result.Data!.ToList();
 
         // Assert
         Assert.True(result.Success);
@@ -273,28 +246,25 @@ public class TaskServiceTests
             .Returns([]);
 
         // Act
-        var service = new TaskService(_mockTaskRepository.Object);
+        var service = CreateTaskService();
         var result = service.GetAllIncompleteTasks();
 
         // Assert
-        Assert.False(result.Success);
-        Assert.Null(result.Data);
-        Assert.Equal(ErrorMessages.NoIncompleteTasks, result.ErrorMessage);
+        ShouldFailWhenErrorMessagesAreEqual(result, ErrorMessages.NoIncompleteTasks);
     }
 
     [Fact]
     public void GetAllCompletedTasks_ShouldSucceed_WhenTasksExist()
     {
         // Arrange
-        var task1 = new ToDoItem(Guid.NewGuid(), TestConstants.ExpectedDescription) { IsDone = true };
-        var task2 = new ToDoItem(Guid.NewGuid(), TestConstants.UpdatedDescription) { IsDone = true };
+        var tasks = CreateTestTasksIReadOnlyList(TestConstants.ExpectedDescription,
+            TestConstants.UpdatedDescription, true, true);
         _mockTaskRepository.Setup(repo => repo.GetCompletedTasks())
-            .Returns([task1, task2]);
+            .Returns(tasks);
 
         // Act
-        var service = new TaskService(_mockTaskRepository.Object);
+        var service = CreateTaskService();
         var result = service.GetAllCompletedTasks();
-        var tasks = result.Data!.ToList();
 
         // Assert
         Assert.True(result.Success);
@@ -309,13 +279,11 @@ public class TaskServiceTests
             .Returns([]);
 
         // Act
-        var service = new TaskService(_mockTaskRepository.Object);
+        var service = CreateTaskService();
         var result = service.GetAllCompletedTasks();
 
         // Assert
-        Assert.False(result.Success);
-        Assert.Null(result.Data);
-        Assert.Equal(ErrorMessages.NoCompletedTasks, result.ErrorMessage);
+        ShouldFailWhenErrorMessagesAreEqual(result, ErrorMessages.NoCompletedTasks);
     }
 
     [Theory]
@@ -324,14 +292,14 @@ public class TaskServiceTests
     public void GetTaskByIndex_ShouldSucceed_WhenIndexIsValid_AndTaskExists(int index)
     {
         // Arrange
-        var task1 = new ToDoItem(Guid.NewGuid(), TestConstants.ExpectedDescription);
-        var task2 = new ToDoItem(Guid.NewGuid(), TestConstants.UpdatedDescription);
+        var task1 = CreateTestTask(TestConstants.ExpectedDescription);
+        var task2 = CreateTestTask(TestConstants.UpdatedDescription);
         List<ToDoItem> tasks = [task1, task2];
         _mockTaskRepository.Setup(repo => repo.GetAllTasks())
             .Returns([task1, task2]);
 
         // Act
-        var service = new TaskService(_mockTaskRepository.Object);
+        var service = CreateTaskService();
         var result = service.GetTaskByIndex(index);
 
         // Assert
@@ -346,19 +314,16 @@ public class TaskServiceTests
     public void GetTaskByIndex_ShouldFail_WhenIndexIsOutOfBounds(int index)
     {
         // Arrange
-        var task1 = new ToDoItem(Guid.NewGuid(), TestConstants.ExpectedDescription);
-        var task2 = new ToDoItem(Guid.NewGuid(), TestConstants.UpdatedDescription);
+        var tasks = CreateTestTasksIReadOnlyList(TestConstants.ExpectedDescription, TestConstants.UpdatedDescription);
         _mockTaskRepository.Setup(repo => repo.GetAllTasks())
-            .Returns([task1, task2]);
+            .Returns(tasks);
 
         // Act
-        var service = new TaskService(_mockTaskRepository.Object);
+        var service = CreateTaskService();
         var result = service.GetTaskByIndex(index);
-        
+
         // Assert
-        Assert.False(result.Success);
-        Assert.Null(result.Data);
-        Assert.StartsWith(ErrorMessages.TaskOutOfRangeFormat.Split('{')[0], result.ErrorMessage);
+        ShouldFailWhenErrorMessagesStartsWith(result, ErrorMessages.TaskOutOfRangeFormat.Split('{')[0]);
     }
 
     [Fact]
@@ -370,25 +335,21 @@ public class TaskServiceTests
             .Returns(tasks!);
 
         // Act
-        var service = new TaskService(_mockTaskRepository.Object);
+        var service = CreateTaskService();
         var result = service.GetTaskByIndex(0);
 
         // Assert
-        Assert.False(result.Success);
-        Assert.Null(result.Data);
-        Assert.StartsWith(ErrorMessages.TaskNotFound, result.ErrorMessage);
+        ShouldFailWhenErrorMessagesStartsWith(result, ErrorMessages.TaskNotFound);
     }
 
     [Fact]
     public void StoreCurrentTasksList_ShouldSucceed_WhenCurrentTaskListExists()
     {
         // Arrange
-        var task1 = new ToDoItem(Guid.NewGuid(), TestConstants.ExpectedDescription);
-        var task2 = new ToDoItem(Guid.NewGuid(), TestConstants.UpdatedDescription);
-        List<ToDoItem> tasks = [task1, task2];
-        
+        List<ToDoItem> tasks = CreateTestTasksList(TestConstants.ExpectedDescription, TestConstants.UpdatedDescription);
+
         // Act
-        var service = new TaskService(_mockTaskRepository.Object);
+        var service = CreateTaskService();
         service.StoreCurrentTasksList(tasks);
 
         // Assert
@@ -409,7 +370,7 @@ public class TaskServiceTests
         // No setup needed
 
         // Act
-        var service = new TaskService(_mockTaskRepository.Object);
+        var service = CreateTaskService();
         service.StoreCurrentTasksList(tasks);
 
         // Assert
@@ -420,14 +381,13 @@ public class TaskServiceTests
     public void GetCurrentTasks_ShouldSucceed_WhenTasksExist()
     {
         // Arrange
-        var task1 = new ToDoItem(Guid.NewGuid(), TestConstants.ExpectedDescription);
-        var task2 = new ToDoItem(Guid.NewGuid(), TestConstants.UpdatedDescription);
-        List<ToDoItem> currentTasks = [task1, task2];
+        List<ToDoItem> currentTasks = CreateTestTasksList(TestConstants.ExpectedDescription, 
+            TestConstants.UpdatedDescription);
         _mockTaskRepository.Setup(repo => repo.GetCurrentTasks())
             .Returns(currentTasks);
 
         // Act
-        var service = new TaskService(_mockTaskRepository.Object);
+        var service = CreateTaskService();
         var result = service.GetCurrentTasks();
 
         // Assert
@@ -447,12 +407,10 @@ public class TaskServiceTests
             .Returns(tasks);
 
         // Act
-        var service = new TaskService(_mockTaskRepository.Object);
+        var service = CreateTaskService();
         var result = service.GetCurrentTasks();
 
         // Assert
-        Assert.False(result.Success);
-        Assert.Null(result.Data);
-        Assert.Equal(ErrorMessages.NoTasks, result.ErrorMessage);
+        ShouldFailWhenErrorMessagesAreEqual(result, ErrorMessages.NoTasks);
     }
 }

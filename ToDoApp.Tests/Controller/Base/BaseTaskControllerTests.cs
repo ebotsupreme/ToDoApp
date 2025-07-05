@@ -2,7 +2,6 @@
 using Moq;
 using ToDoApp.Controller;
 using ToDoApp.Model;
-using ToDoApp.Shared;
 using ToDoApp.Shared.Interfaces;
 
 namespace ToDoApp.Tests.Controller.Base;
