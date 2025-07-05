@@ -136,7 +136,8 @@ public class TaskServiceTests : BaseTaskServiceTests
         var task = CreateTestTask(TestConstants.ExpectedDescription);
         _mockTaskRepository.Setup(repo => repo.GetAllTasks())
             .Returns([]);
-        _mockTaskRepository.Setup(repo => repo.UpdateTask(It.Is<ToDoItem>(t => t.Id == task.Id), TestConstants.UpdatedDescription))
+        _mockTaskRepository.Setup(repo => repo.UpdateTask(It.Is<ToDoItem>(t => t.Id == task.Id),
+            TestConstants.UpdatedDescription))
             .Returns((ToDoItem t, string newDesc) =>
             {
                 t.Description = newDesc;
@@ -186,7 +187,8 @@ public class TaskServiceTests : BaseTaskServiceTests
     public void GetAllExistingTasks_ShouldSucceed_WhenTasksExist()
     {
         // Arrange
-        var tasks = CreateTestTasksIReadOnlyList(TestConstants.ExpectedDescription, TestConstants.UpdatedDescription);
+        var tasks = CreateTestTasksIReadOnlyList(TestConstants.ExpectedDescription,
+            TestConstants.UpdatedDescription);
         _mockTaskRepository.Setup(repo => repo.GetAllTasks())
             .Returns(tasks);
 
@@ -314,7 +316,8 @@ public class TaskServiceTests : BaseTaskServiceTests
     public void GetTaskByIndex_ShouldFail_WhenIndexIsOutOfBounds(int index)
     {
         // Arrange
-        var tasks = CreateTestTasksIReadOnlyList(TestConstants.ExpectedDescription, TestConstants.UpdatedDescription);
+        var tasks = CreateTestTasksIReadOnlyList(TestConstants.ExpectedDescription,
+            TestConstants.UpdatedDescription);
         _mockTaskRepository.Setup(repo => repo.GetAllTasks())
             .Returns(tasks);
 
